@@ -1,0 +1,16 @@
+### POST créer une personne
+POST http://localhost:3000/api/personnes
+Content-Type: application/json
+
+{
+  "nom": "Martin",
+  "prenom": "Paul"
+}
+
+### POST personne - prénom manquant
+POST http://localhost:3000/api/personnes
+Content-Type: application/json
+
+{
+  "nom": "Martin"
+}
