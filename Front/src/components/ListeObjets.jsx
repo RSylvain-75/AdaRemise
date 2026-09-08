@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 
 const ListeObjets = () => {
-  const [listeObjets, setListeObjets] = useState([]);
+  const [listeObjets, setListeObjets] = useState( [] );
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  const [ statutFiltre, setStatutFiltre] = useState (""); 
 
   useEffect(() => {
     const recupererObjets = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/objets");
+        const url = statutFiltre ? `http://localhost:3000/api/objets?statut=${statutFiltre}` : "http://localhost:3000/api/objets";
+        const response = await fetch(url);
         const donnees = await response.json();
         setListeObjets(donnees);
         setChargement(false);
@@ -18,7 +20,7 @@ const ListeObjets = () => {
       }
     };
     recupererObjets();
-  }, []);
+  }, [statutFiltre]);
 
   if (chargement) {
     return <p> Chargement... </p>;
@@ -28,6 +30,19 @@ const ListeObjets = () => {
   }
 
   return (
+    <> 
+   <select value={statutFiltre} onChange={(e) => setStatutFiltre(e.target.value)}>
+
+    <option value=""> Tous les status </option>
+    <option value="arrive"> Arrivé </option>
+    <option value="en_reparation"> En reparation </option>
+    <option value="en_rayon"> En rayon </option>
+    <option value="vendu"> Vendu </option>
+    <option value="recycle"> Recyclé </option>
+    
+
+    </select>
+    
     <div>
       {listeObjets.map((objet) => (
         <div key={objet.id}>
@@ -36,6 +51,7 @@ const ListeObjets = () => {
         </div>
       ))}
     </div>
+    </>
   );
 };
 
