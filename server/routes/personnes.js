@@ -3,6 +3,18 @@ import pool from "../db.js";
 
 const router = express.Router();
 
+router.get("/", async(req, res) => {
+    try {
+        const data = await pool.query(
+            "SELECT id , nom, prenom, telephone, adherente FROM personne  ORDER BY id"
+        ); 
+        res.status(200).json(data.rows);
+    } catch (error) {
+        console.error("liste de personne", error);
+        res.status(500).json({error: "erreur serveur"});
+    }
+});
+
 router.post("/", async (req, res) => {
     const { nom, prenom, telephone, adherente } = req.body ?? {};
         if (!nom || !prenom) {
