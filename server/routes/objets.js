@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "erreur serveur" });
+        res.status(500).json({ error: "erreur serveur." });
     }
 });
 
@@ -77,8 +77,13 @@ router.get("/:id", async (req, res) => {
 });
 
 router.patch("/:id/statut", async (req, res) => {
-    const { id } = req.params;
-    const { statut, prix } = req.body ?? {};
+    // Convertit l'identifiant de l'objet en nombre pour PostgreSQL
+const id = Number(req.params.id);
+// Vérifie la valeur de l'identifiant reçue par l'API
+console.log("ID reçu :", req.params.id);
+console.log("ID converti :", id);
+    const { statut } = req.body ?? {};  // Modifie uniquement le statut d'un objet
+    // auparavant { statut, prix }
 
     if (statut !== "arrive" &&
         statut !== "en_reparation" &&
@@ -89,26 +94,21 @@ router.patch("/:id/statut", async (req, res) => {
             error: "statut invalide"
         });
     }
-    if (prix !== undefined && typeof prix !== "number") {
-        return res.status(400).json({
-            error: "prix doit être un nombre"
-        });
-    }
+
     try { 
         const result = await pool.query(
-        `UPDATE objet
-        SET statut = $1,
-            prix = COALESCE($2, prix)
-        WHERE id = $3
-        RETURNING *`,
-        [statut, prix ?? null, id]
-    ); 
+            `UPDATE objet
+             SET statut = $1
+             WHERE id = $2
+             RETURNING *`,
+            [statut, id]
+        ); 
 
-    if (result.rows.length === 0) {
-        return res.status(404 ).json({
-            error: "objet introuvable"
-        });
-    }
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "objet introuvable"
+            });
+        }
 
         res.status(200).json(result.rows[0]);
 
@@ -116,7 +116,6 @@ router.patch("/:id/statut", async (req, res) => {
         console.error(error);
         res.status(500).json({ error: "erreur serveur"});
     }
-
 });
 
 export default router;
