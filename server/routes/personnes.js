@@ -3,6 +3,26 @@ import pool from "../db.js";
 
 const router = express.Router();
 
+//GET  /api/personnes  → récupérer les personnes.
+router.get("/", async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT id, nom, prenom
+             FROM personne
+             ORDER BY nom, prenom`
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Erreur serveur"
+        });
+    }
+});
+
+
 router.post("/", async (req, res) => {
     const { nom, prenom, telephone, adherente } = req.body ?? {};
         if (!nom || !prenom) {
