@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const ListeObjets = () => {
   // liste des objets reçus de l'API
@@ -95,16 +96,20 @@ const ListeObjets = () => {
       </select>
 
       {/* liste des objets déjà filtrés côté back */}
+<div>
+  {listeObjets.map((objet) => (
+    // Link rend toute la carte cliquable, sans recharger la page (contrairement à une balise <a>)
+    // "to" construit dynamiquement l'URL de destination pour chaque objet, ex: /objets/12
+    <Link key={objet.id} to={`/objets/${objet.id}`}>
       <div>
-        {listeObjets.map((objet) => (
-          <div key={objet.id}>
-            <p>{objet.libelle}</p>
-            <p>
-              {objet.statut} · {objet.categorie}
-            </p>
-          </div>
-        ))}
+        <p>{objet.libelle}</p>
+        <p>
+          {objet.statut} · {objet.categorie}
+        </p>
       </div>
+    </Link>
+  ))}
+</div>
     </>
   );
 };
