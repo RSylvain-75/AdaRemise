@@ -59,6 +59,11 @@ const ListeObjets = () => {
     recupererCategories();
   }, []);
 
+  const reinitialiserFiltres = () => {
+  setStatutFiltre("")
+  setTypeCategories("")
+};
+
   // trois écrans possibles : chargement, erreur, ou la liste normale
   if (chargement) {
     return <p> Chargement... </p>;
@@ -96,6 +101,7 @@ const ListeObjets = () => {
           </option>
         ))}
       </select>
+      <button onClick={reinitialiserFiltres}>Réinitialiser</button>
 
       {/* liste des objets déjà filtrés côté back */}
 <div>

@@ -92,7 +92,7 @@ const FormulaireObjet = () => {
         value={categorieId}
         onChange={(e) => setCategorieId(Number(e.target.value))}
       >
-        <option value="">Choisir une catégories</option>
+        <option value="">Choisir une catégorie</option>
         {listeCategories.map((categorie) => (
           <option key={categorie.id} value={categorie.id}>
             {categorie.libelle}
@@ -104,7 +104,7 @@ const FormulaireObjet = () => {
         type="number"
         value={depotId}
         onChange={(e) => setDepotId(Number(e.target.value))}
-        placeholder=" Id de depot"
+        placeholder="Numéro du dépôt (ex: 5)"
       />
       <button onClick={creerObjet}>Créer l'objet</button>
       {succes && <p>Objet créé</p>}
