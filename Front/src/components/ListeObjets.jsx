@@ -69,6 +69,8 @@ const ListeObjets = () => {
 
   return (
     <>
+    {/* TODO: route /depots/nouveau à créer par B (domaine "faire entrer les objets") */}
+<Link to="/depots/nouveau">+ Nouveau dépôt</Link>
       {/* filtre par statut, liste fixe écrite en dur */}
       <select
         value={statutFiltre}
