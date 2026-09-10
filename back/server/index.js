@@ -8,7 +8,6 @@ import statsRouter from "./routes/stats.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json" with { type: "json"};
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
