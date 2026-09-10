@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import StatCard from "../components/StatCard";
+import StatCard from "./StatCard.jsx";
 import "./Dashboard.css";
 
 function Dashboard() {
