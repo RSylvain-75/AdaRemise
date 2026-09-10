@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import ListeObjets from "./components/ListeObjets";
-import FicheObjet from "./components/FicheObjet";
-import FormulaireObjet from "./components/FormulaireObjet";
+import ListeObjets from "./components/ListeObjets/ListeObjets";
+import FicheObjet from "./components/FicheObjet/FicheObjet";
+import FormulaireObjet from "./components/FormulaireObjet/FormulaireObjet";
 import './App.css'
 
 function App() {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import "./FicheObjet.css";
 
 const FicheObjet = () => {
     const { id } = useParams();
