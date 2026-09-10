@@ -26,3 +26,4 @@
 - **Affichage en popup** plutôt qu'en pages séparées pour la fiche objet et le formulaire d'ajout, pour éviter les changements d'écran complets et fluidifier la navigation.
 - **Alerte "objet en rayon depuis plus de 6 mois"**, en lien avec la fiche objet (prévu en V3 dans le brief).
 - Rafraîchir l'indicateur de chargement au changement de filtre, pas seulement au premier affichage.
+- Une commande unique pour lancer back et front ensemble (ex: `concurrently`, avec un `package.json` racine dédié), au lieu de deux terminaux séparés.
