@@ -18,7 +18,7 @@ useEffect(() => {
     
 
     // if (id) {
-    //     async function chargerBenenvole() {
+    //     async function chargerBenenvole() { // fait apparaître le benenvole connecter 
     //     try {
     //         const id = localStorage.getItem("benevoleId")
     //         const res = await fetch('') // il faut cree des route avec benevole
@@ -32,7 +32,7 @@ useEffect(() => {
     // chargerBenenvole();
     // }
 
-    async function chargerPersonne() {
+    async function chargerPersonne() { // sert a selectionner la personne qui fait le depot
         try {
             const res = await fetch('http://localhost:3000/api/personnes');
             const data = await res.json();
@@ -45,7 +45,7 @@ useEffect(() => {
     chargerPersonne();
 },[])
 
-async function handleCreateDepot() {
+async function handleCreerDepot() { // oblige a remplire c'est imformation pour pouvoir valider 
   if (!personneId || !dateDepot || !typeDepot) {
     alert("Veuillez remplir tous les champs obligatoires.");
     return;
@@ -54,20 +54,22 @@ async function handleCreateDepot() {
   const nouveauDepot = {
     personne_id: personneId,
     date_depot: dateDepot,
-    zone: typeDepot,
+    type: typeDepot,
     notes: notes
   };
 
   try {
-    const res = await fetch("http://localhost:3000/api/depots", {
+    const res = await fetch("http://localhost:3000/api/depots", { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(nouveauDepot)
     });
 
     const data = await res.json();
-
-    // data.id = ID du dépôt créé
+    if (!data.id) {
+    alert("Le backend n’a pas renvoyé d’ID !");
+    return;
+    }
     navigate(`/depot/${data.id}`);
 
   } catch (error) {
@@ -75,12 +77,12 @@ async function handleCreateDepot() {
     alert("Impossible de créer le dépôt.");
   }
 
-  function formulaireNotes() {
+  function formulaireNotes() { // récupère tout le formulaire
     return personneId || dateDepot || typeDepot || notes;
   }
 
-//   function handleCancel() {
-//     if (formulaireNotes()) {
+//   function handleCancel() {  // page qui apparer pour demander la confirmation avant de supprimer le formulaire
+//     if (formulaireNotes()) { // on utilise cette fonction pour bien selectionner ce que l'on veut supprimer 
 //         const ok =window.confirm(
 //             "Des modifications ont été saisies. Voulez-vous vraiment annuler ? Les changements seront perdus."
 //         );
@@ -97,7 +99,7 @@ async function handleCreateDepot() {
 
 // function handleLogout() {
 //     localStorage.removeItem("benevoleId");
-//     navigate(""); //le chemin de la page Qui est tu ?
+//     navigate(``); //le chemin de la page Qui est tu ?
 // }
 
 return (
@@ -137,7 +139,6 @@ return (
         <div>
             <button
             type="button"
-            id="zone"
             className={typeDepot === "boutique" ? "active" : ""}
             onClick={() => setTypeDepot("boutique")}
             >
@@ -147,7 +148,6 @@ return (
 
             <button
             type="button"
-            id="zone"
             className={typeDepot === "domicile" ? "active" : ""}
             onClick={() => setTypeDepot("domicile")}
             >
@@ -164,18 +164,18 @@ return (
         placeholder="Ajouter une note si nécessaire..."
         ></textarea>
 
-        {/* <div>
-            <button type="button" onClick={handleCreateDepot}>
+        <div>
+            <button type="button" onClick={handleCreerDepot}>
                 Créer le dépôt
             </button>
 
 
-            <button
+            {/* <button
             type="buton"
             onClick={handleCancel}>
                 Annuler
-            </button>
-        </div> */}
+            </button> */}
+        </div> 
     </div>
 
 );

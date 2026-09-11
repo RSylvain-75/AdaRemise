@@ -1,0 +1,76 @@
+### GET dépôt existant
+GET http://localhost:3000/api/depots/32 
+
+### GET dépôt inexistant - erreur 404
+GET http://localhost:3000/api/depots/999999
+
+### POST créer un dépôt
+POST http://localhost:3000/api/depots
+Content-Type: application/json
+
+{
+  "date_depot": "2026-09-03",
+  "type": "boutique",
+  "personne_id": 25
+}
+
+### POST dépôt - champs obligatoires manquants
+POST http://localhost:3000/api/depots
+Content-Type: application/json
+
+{
+  "date_depot": "2026-09-03",
+  "type": "boutique"
+}
+
+### POST dépôt - type invalide
+POST http://localhost:3000/api/depots
+Content-Type: application/json
+
+{
+  "date_depot": "2026-09-03",
+  "type": "n_importe_quoi",
+  "personne_id": 25
+}
+
+### POST ajouter un objet à un dépôt
+POST http://localhost:3000/api/depots/32/objets
+Content-Type: application/json
+
+{
+  "libelle": "Chaise test validation",
+  "poids_kg": 4.5,
+  "etat_arrivee": "bon_etat",
+  "categorie_id": 1
+}
+
+### POST objet - poids invalide
+POST http://localhost:3000/api/depots/32/objets
+Content-Type: application/json
+
+{
+  "libelle": "Chaise test validation",
+  "poids_kg": "4.5",
+  "etat_arrivee": "bon_etat",
+  "categorie_id": 1
+}
+
+### POST objet - enum invalide
+POST http://localhost:3000/api/depots/32/objets
+Content-Type: application/json
+
+{
+  "libelle": "Chaise test validation",
+  "poids_kg": 4.5,
+  "etat_arrivee": "n_importe_quoi",
+  "categorie_id": 1
+}
+
+### POST objet - champs obligatoires manquants
+POST http://localhost:3000/api/depots/32/objets
+Content-Type: application/json
+
+{
+  "libelle": "Chaise test validation",
+  "poids_kg": 4.5
+}
