@@ -37,6 +37,11 @@ const ListeObjets = () => {
         // assemble l'URL finale ; si params est vide, ça donne juste "...objets?" (sans danger)
         const url = `http://localhost:3000/api/objets?${params.toString()}`;
 
+        // TODO : fetch() ne considère pas une réponse 404 ou 500 comme une erreur JavaScript.
+        // Le catch ne sera donc pas déclenché automatiquement.
+        // Penser à vérifier reponse.ok après le fetch.
+        const reponse = await fetch(url);
+
         const response = await fetch(url);
         const donnees = await response.json();
         setListeObjets(donnees);
@@ -55,6 +60,7 @@ const ListeObjets = () => {
     const recupererCategories = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/categories");
+        // Même chose ;)
         const donnees = await response.json();
         setListeCategories(donnees);
       } catch (err) {

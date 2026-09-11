@@ -8,23 +8,29 @@ function Dashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/stats")
-      .then((response) => {
+
+    const chargerStats = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/stats");
+        //Si la réponse n'est pas OK, déclenche une erreur.
         if (!response.ok) {
-          throw new Error();
+          throw new Error("Erreur lors du chargement des statistiques");
         }
 
-        return response.json();
-      })
-      .then((data) => {
-        setStats(data);
-      })
-      .catch(() => {
+      const data = await response.json();
+      setStats(data);
+        
+      } catch (error) {
+        console.error(error);
         setError("Impossible de charger les statistiques.");
-      })
-      .finally(() => {
+
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    chargerStats();
+
   }, []);
 
   if (loading) {
