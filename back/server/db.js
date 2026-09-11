@@ -9,4 +9,9 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
+pool.query('SELECT NOW()', (err, res) => {
+  console.log("Connexion OK :", err ? err : res.rows);
+});
+
+
 export default pool;

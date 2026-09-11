@@ -7,10 +7,12 @@ import personnesRouter from "./routes/personnes.js";
 import statsRouter from "./routes/stats.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json" with { type: "json"};
+import cors from "cors";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(cors());
 
 app.use("/api/categories", categoriesRouter);
 app.use("/api/objets", objetsRouter);

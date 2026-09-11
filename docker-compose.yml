@@ -1,15 +1,14 @@
 services:
   db:
     image: postgres:16
-    restart: unless-stopped
+    container_name: adapi-db
     environment:
-      POSTGRES_DB: adaremise
-      POSTGRES_USER: adaremise_user
-      POSTGRES_PASSWORD: motdepasse123
+      POSTGRES_USER: ada
+      POSTGRES_PASSWORD: ada
+      POSTGRES_DB: adapi
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./adapi.sql:/docker-entrypoint-initdb.d/01-adapi.sql
+      - adapi-data:/var/lib/postgresql/data
 
-volumes:
-  pgdata:
