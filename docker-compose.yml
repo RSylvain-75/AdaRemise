@@ -12,5 +12,3 @@ services:
       - ./adapi.sql:/docker-entrypoint-initdb.d/01-adapi.sql
       - adapi-data:/var/lib/postgresql/data
 
-volumes:
-  adapi-data:

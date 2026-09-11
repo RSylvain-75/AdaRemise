@@ -14,16 +14,16 @@ router.get("/", async (req, res) => {
             `SELECT SUM(poids_kg) AS total
             FROM objet`
         );
-        const poidsDetourneResult = await pool.query(
-            `SELECT SUM(poids_kg) AS poids_detourne
+        const objetEnRayonResult = await pool.query(
+            `SELECT count(*) total
             FROM objet
-            WHERE statut != 'recycle'`
+            WHERE statut = 'en_rayon'`
         );
 
         res.status(200).json({
             objet_par_statut: statutsResult.rows,
             poids_total_recu: poidsTotalResult.rows[0].total,
-            poids_total_detourne: poidsDetourneResult.rows[0].poids_detourne
+            objets_en_rayon: objetEnRayonResult.rows[0].total
         });
 
     } catch (error) {

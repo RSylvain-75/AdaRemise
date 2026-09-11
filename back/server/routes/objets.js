@@ -119,4 +119,73 @@ router.patch("/:id/statut", async (req, res) => {
 
 });
 
+router.post("/", async (req, res) => {
+  const { libelle, poids_kg, etat_arrivee, categorie_id, depot_id } = req.body ?? {};
+
+  if (!libelle || !poids_kg || !etat_arrivee || !categorie_id || !depot_id) {
+    return res.status(400).json({
+      error: "champs obligatoires manquants"
+    });
+  }
+  if (typeof depot_id !== "number") {
+    return res.status(400).json({
+      error: "depot_id doit être un nombre"
+    });
+  }
+  if (typeof categorie_id !== "number") {
+    return res.status(400).json({
+      error: "categorie_id doit être un nombre"
+    });
+  }
+  if (typeof poids_kg !== "number") {
+    return res.status(400).json({
+      error: "poids_kg doit être un nombre"
+    });
+  }
+  if (poids_kg <= 0) {
+    return res.status(400).json({
+      error: "poids_kg doit être supérieur à 0"
+    });
+  }
+  if (
+    etat_arrivee !== "bon_etat" &&
+    etat_arrivee !== "a_reparer" &&
+    etat_arrivee !== "hors_service"
+  ) {
+    return res.status(400).json({
+      error: "etat_arrivee invalide"
+    });
+  }
+  try {
+    const result = await pool.query(
+    `INSERT INTO objet (
+        libelle,
+        poids_kg,
+        etat_arrivee,
+        categorie_id,
+        depot_id
+    )
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *`,
+    [
+        libelle,
+        poids_kg,
+        etat_arrivee,
+        categorie_id,
+        depot_id
+    ]
+    );
+
+    res.status(201).json(result.rows[0]);
+
+} catch (error) {
+    console.error(error);
+    res.status(500).json({
+    error: "erreur serveur"
+    });
+}
+
+});
+
+
 export default router;
