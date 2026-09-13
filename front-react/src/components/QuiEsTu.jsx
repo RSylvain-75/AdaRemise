@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 // La prop onPersonneSelectionnee permet de transmettre
 // la personne choisie à App.jsx lors de l'intégration
 function QuiEsTu({ onPersonneSelectionnee }) {
+
+  const navigate = useNavigate();
   // Stocke la liste des personnes récupérées depuis l'API
   const [personnes, setPersonnes] = useState([]);
 
@@ -67,6 +71,8 @@ function QuiEsTu({ onPersonneSelectionnee }) {
               // Transmet la personne sélectionnée au composant parent
               // grâce à la prop onPersonneSelectionnee
               onPersonneSelectionnee(personne);
+
+              navigate("/")
             }}
           >
             {personne.prenom} {personne.nom}
