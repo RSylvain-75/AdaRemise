@@ -41,4 +41,33 @@ router.post("/", async (req, res) => {
     }
 });
 
+router.get("/:id/objets", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const data = await pool.query(
+            `SELECT 
+                o.id,
+                o.libelle,
+                o.poids_kg,
+                o.etat_arrivee,
+                o.statut,
+                c.libelle AS categorie_libelle,
+                d.id AS depot_id,
+                d.date_depot
+            FROM objet o
+            JOIN categorie c ON o.categorie_id = c.id
+            JOIN depot d ON o.depot_id = d.id
+            WHERE d.personne_id = $1
+            ORDER BY o.id`,
+            [id]
+        );
+
+        res.status(200).json(data.rows);
+    } catch (error) {
+        console.error("Erreur historique objets", error);
+        res.status(500).json({ error: "erreur serveur" });
+    }
+});
+
 export default router;
