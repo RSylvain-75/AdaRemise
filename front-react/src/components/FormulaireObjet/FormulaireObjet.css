@@ -1,0 +1,98 @@
+.page-message {
+  padding: 24px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.page-formulaire {
+  padding: 28px 36px;
+  font-family: system-ui, sans-serif;
+  max-width: 480px;
+}
+
+.lien-retour {
+  display: inline-block;
+  font-size: 13px;
+  color: #6b7280;
+  text-decoration: none;
+  margin-bottom: 14px;
+}
+
+.lien-retour:hover {
+  color: #2563eb;
+}
+
+.page-formulaire h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 20px;
+  color: #111827;
+}
+
+.formulaire-carte {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formulaire-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formulaire-champ label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.formulaire-champ input,
+.formulaire-champ select {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: white;
+}
+
+.formulaire-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.bouton-primaire {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bouton-secondaire {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  color: #111827;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.message-succes {
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+}
