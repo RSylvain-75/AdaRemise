@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    restart: unless-stopped
+    container_name: adaremise-db
     environment:
       POSTGRES_USER: adaremise_user
       POSTGRES_PASSWORD: motdepasse123
@@ -13,5 +13,3 @@ services:
       - ./back/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
       - pgdata:/var/lib/postgresql/data
 
-volumes:
-  pgdata:
