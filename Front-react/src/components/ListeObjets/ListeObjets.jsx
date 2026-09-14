@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import FicheObjet from "../FicheObjet/FicheObjet";
 import "./ListeObjets.css";
 
 const ListeObjets = () => {
@@ -15,10 +16,10 @@ const ListeObjets = () => {
   const [listeCategories, setListeCategories] = useState([]);
   // catégorie actuellement sélectionnée dans le filtre ("" = toutes)
   const [typeCategories, setTypeCategories] = useState("");
-  // objet cliqué dans la liste (infos partielles, celles déjà connues de listeObjets) ; null = popup fermée
+  // objet cliqué dans la liste ; null = popup fermée.
+  // on ne stocke QUE cet id/objet partiel ici : FicheObjet se charge lui-même
+  // de récupérer et d'afficher le détail complet, donc pas de deuxième fetch à gérer ici
   const [objetSelectionne, setObjetSelectionne] = useState(null);
-  // détails complets de l'objet sélectionné, récupérés via un fetch séparé ; null tant que non chargés
-  const [objetDetail, setObjetDetail] = useState(null);
 
   // récupère les objets, relancé à chaque changement de filtre (statut ou catégorie)
   useEffect(() => {
@@ -63,24 +64,6 @@ const ListeObjets = () => {
     setStatutFiltre("");
     setTypeCategories("");
   };
-
-  // récupère les détails complets de l'objet sélectionné, à chaque changement de sélection
-  useEffect(() => {
-    if (!objetSelectionne) {
-      setObjetDetail(null);
-      return;
-    }
-    const recupererDetailObjet = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/api/objets/${objetSelectionne.id}`);
-        const donnees = await response.json();
-        setObjetDetail(donnees);
-      } catch (err) {
-        setErreur(err);
-      }
-    };
-    recupererDetailObjet();
-  }, [objetSelectionne]);
 
   // convertit une date ISO (ex: "2026-07-23T22:00:00.000Z") en format lisible JJ/MM/AAAA
   // renvoie "-" si la date est absente (objet encore "arrivé", pas encore mis en rayon)
@@ -180,41 +163,15 @@ const ListeObjets = () => {
         </table>
       )}
 
+      {/* la popup réutilise directement le composant FicheObjet, en lui passant l'id en prop
+          (au lieu de recréer un deuxième fetch + un deuxième affichage détaillé ici) */}
       {objetSelectionne && (
         <div className="popup-overlay" onClick={() => setObjetSelectionne(null)}>
           <div className="popup-carte" onClick={(e) => e.stopPropagation()}>
-            <div className="popup-entete">
-              <h2>Objet #{objetSelectionne.id}</h2>
-              <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
-                ✕
-              </button>
-            </div>
-            {objetDetail && (
-              <div className="popup-infos">
-                <div className="popup-ligne">
-                  <span>Nom</span>
-                  <span>{objetDetail.libelle}</span>
-                </div>
-                <div className="popup-ligne">
-                  <span>Catégorie</span>
-                  <span>{objetDetail.categorie}</span>
-                </div>
-                <div className="popup-ligne">
-                  <span>État d'arrivée</span>
-                  <span>{objetDetail.etat_arrivee}</span>
-                </div>
-                <div className="popup-ligne">
-                  <span>Statut actuel</span>
-                  <span className={`badge badge-${objetDetail.statut}`}>
-                    {objetDetail.statut}
-                  </span>
-                </div>
-                <div className="popup-ligne">
-                  <span>Poids</span>
-                  <span>{objetDetail.poids_kg} kg</span>
-                </div>
-              </div>
-            )}
+            <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
+              ✕
+            </button>
+            <FicheObjet id={objetSelectionne.id} />
           </div>
         </div>
       )}

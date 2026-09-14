@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./FicheObjet.css";
 
-const FicheObjet = () => {
-  // récupère la valeur ":id" depuis l'URL (ex: /objets/12 -> id = "12")
-  const { id } = useParams();
+const FicheObjet = ({ id: idProp }) => {
+  const { id: idUrl } = useParams();
+  const id = idProp || idUrl;
   // objet complet reçu de l'API ; null tant qu'il n'est pas encore chargé
   const [stockageObjet, setStockageObjet] = useState(null);
   // true tant que le fetch n'est pas terminé
@@ -39,9 +39,11 @@ const FicheObjet = () => {
   return (
     <div className="page-fiche-objet">
       {/* lien de retour vers la liste */}
-      <Link to="/" className="lien-retour">
-        ← Retour à la liste
-      </Link>
+      {!idProp && (
+  <Link to="/" className="lien-retour">
+    ← Retour à la liste
+  </Link>
+)}
 
       <h1>Objet #{stockageObjet.id}</h1>
 

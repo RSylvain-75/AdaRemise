@@ -35,10 +35,10 @@ const FormulaireObjet = () => {
   // (GET /depots), sur le modèle exact de celui des catégories ci-dessus
 
   if (chargement) {
-    return <p> Chargement... </p>;
+    return <p className="page-message"> Chargement... </p>;
   }
   if (erreur) {
-    return <p> Echec du chargement </p>;
+    return <p className="page-message"> Echec du chargement </p>;
   }
 
   const creerObjet = async () => {
@@ -67,49 +67,85 @@ const FormulaireObjet = () => {
   };
 
   return (
-    <>
-      <input
-        type="text"
-        value={libelle}
-        onChange={(e) => setLibelle(e.target.value)}
-        placeholder="Libelle"
-      />
-      <input
-        type="number"
-        value={poidsKg}
-        onChange={(e) => setPoidsKg(Number(e.target.value))}
-        placeholder="Poids en kg"
-      />
-      <select
-        value={etatArrivee}
-        onChange={(e) => setEtatArrivee(e.target.value)}
-      >
-        <option value="">Choisir un état</option>
-        <option value="bon_etat">Bon état</option>
-        <option value="a_reparer">À réparer</option>
-        <option value="hors_service">Hors service</option>
-      </select>
-      <select
-        value={categorieId}
-        onChange={(e) => setCategorieId(Number(e.target.value))}
-      >
-        <option value="">Choisir une catégorie</option>
-        {listeCategories.map((categorie) => (
-          <option key={categorie.id} value={categorie.id}>
-            {categorie.libelle}
-          </option>
-        ))}
-      </select>
-      {/* TODO: remplacer cet input par un <select> alimenté par listeDepots, une fois GET /depots disponible */}
-      <input
-        type="number"
-        value={depotId}
-        onChange={(e) => setDepotId(Number(e.target.value))}
-        placeholder="Numéro du dépôt (ex: 5)"
-      />
-      <button onClick={creerObjet}>Créer l'objet</button>
-      {succes && <p>Objet créé</p>}
-    </>
+    <div className="page-formulaire">
+      <Link to="/" className="lien-retour">
+        ← Retour à la liste
+      </Link>
+
+      <h1>Nouvel objet</h1>
+
+      <div className="formulaire-carte">
+        <div className="formulaire-champ">
+          <label>Libellé</label>
+          <input
+            type="text"
+            value={libelle}
+            onChange={(e) => setLibelle(e.target.value)}
+            placeholder="Libellé"
+          />
+        </div>
+
+        <div className="formulaire-champ">
+          <label>Poids (kg)</label>
+          <input
+            type="number"
+            value={poidsKg}
+            onChange={(e) => setPoidsKg(Number(e.target.value))}
+            placeholder="Poids en kg"
+          />
+        </div>
+
+        <div className="formulaire-champ">
+          <label>État d'arrivée</label>
+          <select
+            value={etatArrivee}
+            onChange={(e) => setEtatArrivee(e.target.value)}
+          >
+            <option value="">Choisir un état</option>
+            <option value="bon_etat">Bon état</option>
+            <option value="a_reparer">À réparer</option>
+            <option value="hors_service">Hors service</option>
+          </select>
+        </div>
+
+        <div className="formulaire-champ">
+          <label>Catégorie</label>
+          <select
+            value={categorieId}
+            onChange={(e) => setCategorieId(Number(e.target.value))}
+          >
+            <option value="">Choisir une catégorie</option>
+            {listeCategories.map((categorie) => (
+              <option key={categorie.id} value={categorie.id}>
+                {categorie.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* TODO: remplacer cet input par un <select> alimenté par listeDepots, une fois GET /depots disponible */}
+        <div className="formulaire-champ">
+          <label>Numéro du dépôt</label>
+          <input
+            type="number"
+            value={depotId}
+            onChange={(e) => setDepotId(Number(e.target.value))}
+            placeholder="Numéro du dépôt (ex: 5)"
+          />
+        </div>
+
+        <div className="formulaire-actions">
+          <Link to="/" className="bouton-secondaire">
+            Annuler
+          </Link>
+          <button className="bouton-primaire" onClick={creerObjet}>
+            Créer l'objet
+          </button>
+        </div>
+
+        {succes && <p className="message-succes">Objet créé</p>}
+      </div>
+    </div>
   );
 };
 
