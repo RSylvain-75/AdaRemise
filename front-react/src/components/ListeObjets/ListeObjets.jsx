@@ -34,12 +34,13 @@ const ListeObjets = () => {
         }
         const url = `http://localhost:3000/api/objets?${params.toString()}`;
 
-        // TODO : fetch() ne considère pas une réponse 404 ou 500 comme une erreur JavaScript.
-        // Le catch ne sera donc pas déclenché automatiquement.
-        // Penser à vérifier reponse.ok après le fetch.
-        const reponse = await fetch(url);
-
         const response = await fetch(url);
+        // fetch() ne considère pas un 400/500 comme une erreur JS : sans cette vérification,
+        // le catch ne se déclencherait pas et setListeObjets recevrait l'objet d'erreur
+        // renvoyé par le back au lieu d'un vrai tableau d'objets
+        if (!response.ok) {
+          throw new Error("Impossible de charger les objets.");
+        }
         const donnees = await response.json();
         setListeObjets(donnees);
         setChargement(false);
@@ -56,7 +57,10 @@ const ListeObjets = () => {
     const recupererCategories = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/categories");
-        // Même chose ;)
+        // même vérification que pour les objets, voir commentaire ci-dessus
+        if (!response.ok) {
+          throw new Error("Impossible de charger les catégories.");
+        }
         const donnees = await response.json();
         setListeCategories(donnees);
       } catch (err) {
@@ -90,7 +94,6 @@ const ListeObjets = () => {
     <div className="page-objets">
       <div className="page-objets-header">
         <h1>Objets</h1>
-        {/* TODO: route /depots/nouveau à créer par B (domaine "faire entrer les objets") */}
         <Link to="/depots/nouveau" className="bouton-primaire">
           + Nouveau dépôt
         </Link>

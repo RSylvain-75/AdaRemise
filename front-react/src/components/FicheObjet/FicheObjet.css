@@ -85,3 +85,50 @@
 .badge-en_reparation { background: #fef3c7; color: #b45309; }
 .badge-vendu { background: #dbeafe; color: #1d4ed8; }
 .badge-recycle { background: #f3e8ff; color: #7e22ce; }
+
+.fiche-modif-statut {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.fiche-modif-statut h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #111827;
+}
+
+.fiche-modif-champ {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.fiche-modif-champ select {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: white;
+}
+
+.bouton-primaire {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.message-erreur {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 8px 0 0;
+}

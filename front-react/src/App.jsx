@@ -11,7 +11,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<ListeObjets />} />
-      <Route path="/objets/nouveau" element={<FormulaireObjet />} />
+      <Route path="/objets/nouveau/:depotId" element={<FormulaireObjet />} />
       <Route path="/objets/:id" element={<FicheObjet />} />
       <Route path="/depot/:id" element={<Fiche_depot/>}/>
       <Route path="/depots/nouveau" element={<NouveauDepot/>}/>
