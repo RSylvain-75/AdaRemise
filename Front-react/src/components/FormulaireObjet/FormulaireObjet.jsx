@@ -4,18 +4,22 @@ import "./FormulaireObjet.css";
 
 const FormulaireObjet = () => {
   const [libelle, setLibelle] = useState("");
+  // poidsKg est stocké comme un nombre (conversion faite dans le onChange, voir plus bas)
   const [poidsKg, setPoidsKg] = useState("");
   const [etatArrivee, setEtatArrivee] = useState("");
+  // categorieId est stocké comme un nombre, pas une chaîne, pour matcher ce qu'attend le back
   const [categorieId, setCategorieId] = useState("");
   // depotId : saisi à la main pour l'instant (pas de select, faute de route GET /depots disponible)
   const [depotId, setDepotId] = useState("");
   // TODO: une fois GET /depots confirmé chez B et récupéré via Git,
-  // ajouter ici un state pour stocker la liste des dépôts, ex: const [listeDepots, setListeDepots] = useState([]);
+  // ajouter ici un state pour la liste des dépôts, ex: const [listeDepots, setListeDepots] = useState([]);
   const [listeCategories, setListeCategories] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  // succes : true une fois l'objet créé, pour afficher un message de confirmation à l'écran
   const [succes, setSucces] = useState(false);
 
+  // récupère les catégories une seule fois, au montage
   useEffect(() => {
     const recupererCategories = async () => {
       try {
@@ -31,8 +35,8 @@ const FormulaireObjet = () => {
     recupererCategories();
   }, []);
 
-  // TODO: ajouter ici un second useEffect qui récupère la liste des dépôts
-  // (GET /depots), sur le modèle exact de celui des catégories ci-dessus
+  // TODO: ajouter ici un second useEffect qui récupère la liste des dépôts (GET /depots),
+  // sur le modèle exact de celui des catégories ci-dessus
 
   if (chargement) {
     return <p className="page-message"> Chargement... </p>;
@@ -41,12 +45,15 @@ const FormulaireObjet = () => {
     return <p className="page-message"> Echec du chargement </p>;
   }
 
+  // fonction déclenchée au clic sur le bouton (pas dans un useEffect : pas de déclenchement automatique)
   const creerObjet = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/objets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // les clés respectent le nommage attendu par le back (snake_case),
+          // même si les variables React sont en camelCase (ex: poids_kg: poidsKg)
           libelle,
           poids_kg: poidsKg,
           etat_arrivee: etatArrivee,
@@ -56,6 +63,8 @@ const FormulaireObjet = () => {
       });
       const donnees = await response.json();
       setSucces(true);
+      // on remet chaque champ à sa valeur initiale pour permettre d'ajouter
+      // un nouvel objet directement, sans recharger la page ni renaviguer
       setLibelle("");
       setPoidsKg("");
       setEtatArrivee("");
@@ -90,6 +99,7 @@ const FormulaireObjet = () => {
           <input
             type="number"
             value={poidsKg}
+            // Number(...) convertit la chaîne renvoyée par l'input en vrai nombre JS
             onChange={(e) => setPoidsKg(Number(e.target.value))}
             placeholder="Poids en kg"
           />
@@ -143,6 +153,7 @@ const FormulaireObjet = () => {
           </button>
         </div>
 
+        {/* affichage conditionnel : ce message n'apparaît que si succes vaut true */}
         {succes && <p className="message-succes">Objet créé</p>}
       </div>
     </div>

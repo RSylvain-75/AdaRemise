@@ -166,7 +166,10 @@ const ListeObjets = () => {
       {/* la popup réutilise directement le composant FicheObjet, en lui passant l'id en prop
           (au lieu de recréer un deuxième fetch + un deuxième affichage détaillé ici) */}
       {objetSelectionne && (
+        // cliquer sur l'overlay (le fond assombri) ferme la popup
         <div className="popup-overlay" onClick={() => setObjetSelectionne(null)}>
+          {/* stopPropagation empêche un clic à l'intérieur de la carte de "remonter"
+              jusqu'à l'overlay et de fermer la popup par erreur */}
           <div className="popup-carte" onClick={(e) => e.stopPropagation()}>
             <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
               ✕
