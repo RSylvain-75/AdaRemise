@@ -13,17 +13,17 @@ function QuiEsTu({ onIdentification }) {
   useEffect(() => {
     const recupererPersonnes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/personnes");
+      const response = await fetch("http://localhost:3000/api/benevoles");
 
         if (!response.ok) {
-          throw new Error("Erreur lors du chargement des personnes");
+          throw new Error("Erreur lors du chargement des benevoles");
         }
 
         const data = await response.json();
         setPersonnes(data);
       } catch (error) {
         console.error(error);
-        setErreur("Impossible de charger la liste des personnes.");
+        setErreur("Impossible de charger la liste des benevoles.");
       } finally {
         setChargement(false);
       }
