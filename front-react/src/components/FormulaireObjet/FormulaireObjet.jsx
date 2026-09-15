@@ -4,26 +4,21 @@ import "./FormulaireObjet.css";
 
 const FormulaireObjet = () => {
   const [libelle, setLibelle] = useState("");
-  // poidsKg est stocké comme un nombre (conversion faite dans le onChange, voir plus bas)
   const [poidsKg, setPoidsKg] = useState("");
   const [etatArrivee, setEtatArrivee] = useState("");
-  // categorieId est stocké comme un nombre, pas une chaîne, pour matcher ce qu'attend le back
   const [categorieId, setCategorieId] = useState("");
-  // depotId vient toujours de l'URL (route /objets/nouveau/:depotId) :
-  // plus besoin de useState, c'est une valeur fixe pendant toute la durée du formulaire
-  const { depotId } = useParams();
+  // depotId vient de l'URL (route /objets/nouveau/:depotId), si elle est présente.
+  // Cas normal du workflow : on arrive toujours via Fiche_depot avec un id connu.
+  const { depotId: depotIdUrl } = useParams();
+  // Repli : si jamais le formulaire est atteint sans depotId dans l'URL (accès direct,
+  // cas non prévu par le workflow normal), le champ reste modifiable manuellement.
+  const [depotId, setDepotId] = useState(depotIdUrl ? Number(depotIdUrl) : "");
   const [listeCategories, setListeCategories] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
-  // succes : true une fois l'objet créé, pour afficher un message de confirmation à l'écran
   const [succes, setSucces] = useState(false);
-  // erreurValidation est séparé de "erreur" : "erreur" déclenche les deux if ci-dessous
-  // et remplace TOUT le formulaire par un message ("Echec du chargement") — utile pour
-  // une erreur de chargement initial, mais pas pour une erreur de saisie, qui doit
-  // s'afficher À CÔTÉ du formulaire sans le faire disparaître
   const [erreurValidation, setErreurValidation] = useState("");
 
-  // récupère les catégories une seule fois, au montage
   useEffect(() => {
     const recupererCategories = async () => {
       try {
@@ -39,7 +34,6 @@ const FormulaireObjet = () => {
     recupererCategories();
   }, []);
 
-  // trois écrans possibles : chargement, erreur de chargement, ou le formulaire normal
   if (chargement) {
     return <p className="page-message"> Chargement... </p>;
   }
@@ -47,9 +41,6 @@ const FormulaireObjet = () => {
     return <p className="page-message"> Echec du chargement </p>;
   }
 
-  // fonction déclenchée au clic sur le bouton, pas dans un useEffect :
-  // contrairement au fetch des catégories (qui doit se lancer automatiquement),
-  // la création d'un objet ne doit se déclencher que sur une action explicite de l'utilisatrice
   const creerObjet = async () => {
     if (!libelle || !poidsKg || !etatArrivee || !categorieId || !depotId) {
       setErreurValidation("Merci de remplir tous les champs");
@@ -61,25 +52,26 @@ const FormulaireObjet = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // les clés respectent le nommage attendu par le back (snake_case),
-          // même si les variables React sont en camelCase (ex: poids_kg: poidsKg)
           libelle,
           poids_kg: poidsKg,
           etat_arrivee: etatArrivee,
           categorie_id: categorieId,
-          // depotId vient de useParams(), donc c'est une chaîne ("31") : on convertit
-          // en nombre ici, au moment de l'envoi, comme l'exige la route back
           depot_id: Number(depotId),
         }),
       });
-      const donnees = await response.json();
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout de l'objet");
+      }
       setSucces(true);
-      // on remet chaque champ à sa valeur initiale pour permettre d'ajouter
-      // un nouvel objet directement, sans recharger la page ni renaviguer
       setLibelle("");
       setPoidsKg("");
       setEtatArrivee("");
       setCategorieId("");
+      // si depotId venait de l'URL (workflow normal), on le garde pour enchaîner
+      // les ajouts au même dépôt ; sinon (saisie manuelle), on le vide aussi
+      if (!depotIdUrl) {
+        setDepotId("");
+      }
     } catch (err) {
       setErreur(err);
     }
@@ -109,7 +101,6 @@ const FormulaireObjet = () => {
           <input
             type="number"
             value={poidsKg}
-            // Number(...) convertit la chaîne renvoyée par l'input en vrai nombre JS
             onChange={(e) => setPoidsKg(Number(e.target.value))}
             placeholder="Poids en kg"
           />
@@ -143,11 +134,24 @@ const FormulaireObjet = () => {
           </select>
         </div>
 
-        {/* depotId vient de l'URL, connu et fixe : affichage en lecture seule, plus de saisie manuelle */}
-        <div className="formulaire-champ">
-          <label>Numéro du dépôt</label>
-          <p>#{depotId}</p>
-        </div>
+        {/* si depotId vient de l'URL (workflow normal), affichage fixe en lecture seule ;
+            sinon (accès direct sans dépôt précis), champ modifiable manuellement */}
+        {depotIdUrl ? (
+          <div className="formulaire-champ">
+            <label>Numéro du dépôt</label>
+            <p>#{depotId}</p>
+          </div>
+        ) : (
+          <div className="formulaire-champ">
+            <label>Numéro du dépôt</label>
+            <input
+              type="number"
+              value={depotId}
+              onChange={(e) => setDepotId(Number(e.target.value))}
+              placeholder="Numéro du dépôt (ex: 5)"
+            />
+          </div>
+        )}
 
         <div className="formulaire-actions">
           <Link to={`/depot/${depotId}`} className="bouton-secondaire">
@@ -158,9 +162,7 @@ const FormulaireObjet = () => {
           </button>
         </div>
 
-        {/* affichage conditionnel : ce message n'apparaît que si succes vaut true */}
         {succes && <p className="message-succes">Objet créé</p>}
-        {/* même principe : n'apparaît que si erreurValidation contient un message */}
         {erreurValidation && <p className="message-erreur">{erreurValidation}</p>}
       </div>
     </div>
