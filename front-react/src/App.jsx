@@ -15,7 +15,7 @@ function App() {
     <Routes>
       <Route path="/" element={benevoleId ? <ListeObjets /> : <Navigate to="/qui-es-tu" replace />} />
       <Route path="/qui-es-tu" element={<QuiEsTu />} />
-      <Route path="/objets/nouveau" element={benevoleId ? <FormulaireObjet /> : <Navigate to="/qui-es-tu" replace />} />
+      <Route path="/objets/nouveau/:depotId" element={benevoleId ? <FormulaireObjet /> : <Navigate to="/qui-es-tu" replace />} />
       <Route path="/objets/:id" element={benevoleId ? <FicheObjet /> : <Navigate to="/qui-es-tu" replace />} />
       <Route path="/depot/:id" element={benevoleId ? <Fiche_depot /> : <Navigate to="/qui-es-tu" replace />} />
       <Route path="/depots/nouveau" element={benevoleId ? <NouveauDepot /> : <Navigate to="/qui-es-tu" replace />} />

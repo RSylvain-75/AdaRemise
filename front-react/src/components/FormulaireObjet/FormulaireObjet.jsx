@@ -1,31 +1,24 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./FormulaireObjet.css";
 
 const FormulaireObjet = () => {
-  // Récupère les paramètres présents dans l'URL.
-  const [searchParams] = useSearchParams();
-  // Récupère automatiquement l'id du dépôt transmis dans l'URL.
-  const depotIdUrl = searchParams.get("depot");
-
   const [libelle, setLibelle] = useState("");
-  // poidsKg est stocké comme un nombre (conversion faite dans le onChange, voir plus bas)
   const [poidsKg, setPoidsKg] = useState("");
   const [etatArrivee, setEtatArrivee] = useState("");
-  // categorieId est stocké comme un nombre, pas une chaîne, pour matcher ce qu'attend le back
   const [categorieId, setCategorieId] = useState("");
-  // Récupère automatiquement l'id du dépôt depuis l'URL lorsqu'on arrive depuis une fiche dépôt.
-  // Si aucun dépôt n'est indiqué dans l'URL, le champ reste vide et peut être renseigné manuellement.
- const [depotId, setDepotId] = useState(depotIdUrl ? Number(depotIdUrl) : "");
-  // TODO: une fois GET /depots confirmé chez B et récupéré via Git,
-  // ajouter ici un state pour la liste des dépôts, ex: const [listeDepots, setListeDepots] = useState([]);
+  // depotId vient de l'URL (route /objets/nouveau/:depotId), si elle est présente.
+  // Cas normal du workflow : on arrive toujours via Fiche_depot avec un id connu.
+  const { depotId: depotIdUrl } = useParams();
+  // Repli : si jamais le formulaire est atteint sans depotId dans l'URL (accès direct,
+  // cas non prévu par le workflow normal), le champ reste modifiable manuellement.
+  const [depotId, setDepotId] = useState(depotIdUrl ? Number(depotIdUrl) : "");
   const [listeCategories, setListeCategories] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
-  // succes : true une fois l'objet créé, pour afficher un message de confirmation à l'écran
   const [succes, setSucces] = useState(false);
+  const [erreurValidation, setErreurValidation] = useState("");
 
-  // récupère les catégories une seule fois, au montage
   useEffect(() => {
     const recupererCategories = async () => {
       try {
@@ -41,9 +34,6 @@ const FormulaireObjet = () => {
     recupererCategories();
   }, []);
 
-  // TODO: ajouter ici un second useEffect qui récupère la liste des dépôts (GET /depots),
-  // sur le modèle exact de celui des catégories ci-dessus
-
   if (chargement) {
     return <p className="page-message"> Chargement... </p>;
   }
@@ -51,37 +41,36 @@ const FormulaireObjet = () => {
     return <p className="page-message"> Echec du chargement </p>;
   }
 
-  // fonction déclenchée au clic sur le bouton (pas dans un useEffect : pas de déclenchement automatique)
   const creerObjet = async () => {
+    if (!libelle || !poidsKg || !etatArrivee || !categorieId || !depotId) {
+      setErreurValidation("Merci de remplir tous les champs");
+      return;
+    }
+    setErreurValidation("");
     try {
       const response = await fetch("http://localhost:3000/api/objets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // les clés respectent le nommage attendu par le back (snake_case),
-          // même si les variables React sont en camelCase (ex: poids_kg: poidsKg)
           libelle,
           poids_kg: poidsKg,
           etat_arrivee: etatArrivee,
           categorie_id: categorieId,
-          depot_id: depotId,
+          depot_id: Number(depotId),
         }),
       });
-      
       if (!response.ok) {
         throw new Error("Erreur lors de l'ajout de l'objet");
       }
       setSucces(true);
-      // on remet chaque champ à sa valeur initiale pour permettre d'ajouter
-      // un nouvel objet directement, sans recharger la page ni renaviguer
       setLibelle("");
       setPoidsKg("");
       setEtatArrivee("");
       setCategorieId("");
-      // Si aucun dépôt n'a été transmis dans l'URL, on réinitialise son numéro.
-      // Sinon, on conserve l'id pour pouvoir ajouter plusieurs objets au même dépôt.
+      // si depotId venait de l'URL (workflow normal), on le garde pour enchaîner
+      // les ajouts au même dépôt ; sinon (saisie manuelle), on le vide aussi
       if (!depotIdUrl) {
-      setDepotId("");
+        setDepotId("");
       }
     } catch (err) {
       setErreur(err);
@@ -90,8 +79,8 @@ const FormulaireObjet = () => {
 
   return (
     <div className="page-formulaire">
-      <Link to="/" className="lien-retour">
-        ← Retour à la liste
+      <Link to={`/depot/${depotId}`} className="lien-retour">
+        ← Retour au dépôt
       </Link>
 
       <h1>Nouvel objet</h1>
@@ -112,7 +101,6 @@ const FormulaireObjet = () => {
           <input
             type="number"
             value={poidsKg}
-            // Number(...) convertit la chaîne renvoyée par l'input en vrai nombre JS
             onChange={(e) => setPoidsKg(Number(e.target.value))}
             placeholder="Poids en kg"
           />
@@ -146,26 +134,27 @@ const FormulaireObjet = () => {
           </select>
         </div>
 
-        {/* Si l'id du dépôt est transmis dans l'URL, il est utilisé automatiquement.
-          Sinon, le numéro du dépôt peut être renseigné manuellement. */}
-       {depotIdUrl ? (
-        <div className="formulaire-champ">
-          <label>Dépot</label>
-          <p>Dépot n°{depotId}</p>
+        {/* si depotId vient de l'URL (workflow normal), affichage fixe en lecture seule ;
+            sinon (accès direct sans dépôt précis), champ modifiable manuellement */}
+        {depotIdUrl ? (
+          <div className="formulaire-champ">
+            <label>Numéro du dépôt</label>
+            <p>#{depotId}</p>
           </div>
-       ) : (
-        <div className="formulaire-champ">
-          <label>Numéro du dépôt</label>
-          <input
-          type="number"
-          value={depotId}
-          onChange={(e) => setDepotId(Number(e.target.value))}
-          />
+        ) : (
+          <div className="formulaire-champ">
+            <label>Numéro du dépôt</label>
+            <input
+              type="number"
+              value={depotId}
+              onChange={(e) => setDepotId(Number(e.target.value))}
+              placeholder="Numéro du dépôt (ex: 5)"
+            />
           </div>
-       )}
+        )}
 
         <div className="formulaire-actions">
-          <Link to="/" className="bouton-secondaire">
+          <Link to={`/depot/${depotId}`} className="bouton-secondaire">
             Annuler
           </Link>
           <button className="bouton-primaire" onClick={creerObjet}>
@@ -173,8 +162,8 @@ const FormulaireObjet = () => {
           </button>
         </div>
 
-        {/* affichage conditionnel : ce message n'apparaît que si succes vaut true */}
         {succes && <p className="message-succes">Objet créé</p>}
+        {erreurValidation && <p className="message-erreur">{erreurValidation}</p>}
       </div>
     </div>
   );
