@@ -22,10 +22,13 @@ router.get("/:id", async (req, res) => {
         });
     } 
         const objetsResult = await pool.query(`
-            SELECT o.*
+           SELECT
+                o.*,
+                c.libelle AS categorie_libelle
             FROM objet o
+            JOIN categorie c ON o.categorie_id = c.id
             WHERE o.depot_id = $1
-            Order BY o.id`,
+            ORDER BY o.id`,
         [id]
     );
         const depot = result.rows[0];

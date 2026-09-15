@@ -6,7 +6,8 @@ export default function FicheDepot() {
     const navigate = useNavigate();
 
     const [depot, setDepot] = useState(null);
-    const [anciensObjets, setAnciensObjets] = useState([]);
+    // Contient uniquement les objets associés au dépôt actuellement affiché.
+    const [objetsDepot, setObjetsDepot] = useState([]);
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState(null)
 
@@ -20,9 +21,10 @@ useEffect(() => {
             const data =await res.json();
             setDepot(data);
 
-            const resObjets = await fetch(`http://localhost:3000/api/personnes/${data.personne_id}/objets`);
-            const anciens = await resObjets.json();
-            setAnciensObjets(Array.isArray(anciens) ? anciens : []);
+            // La route GET /api/depots/:id renvoie déjà les objets du dépôt.
+            // On évite donc un deuxième appel API vers l'historique du donateur.
+            setObjetsDepot(Array.isArray(data.objets) ? data.objets : []);
+            
         } catch (error) {
             setErreur(error.message)
         } finally {
@@ -40,16 +42,16 @@ return(
  <div>
     <h1>Dépôt :{depot.id}</h1>
 
-    <h3>Infomations du dépôt</h3>
+    <h3>Informations du dépôt</h3>
     <section>
         <p><strong>Donateur :</strong> {depot.donatrice_nom} {depot.donatrice_prenom}</p>
         <p><strong>Date :</strong> {depot.date_depot}</p>
-        <p><strong>Type :</strong> {depot.type_depot}</p> 
+        <p><strong>Type :</strong> {depot.type}</p> 
     </section>
 
-    <h3>Objets deja donner ({anciensObjets.length || 0}) </h3>
+    <h3>Objets du dépôt ({objetsDepot.length})</h3>
 
-    {anciensObjets.length === 0 ? (
+    {objetsDepot.length === 0 ? (
         <p>Aucun objet pour ce dépôt.</p>
     ) : (
         <table>
@@ -65,7 +67,7 @@ return(
             </thead>
 
             <tbody>
-                {anciensObjets?.length > 0 && anciensObjets.map((obj) => (
+                {objetsDepot?.length > 0 && objetsDepot.map((obj) => (
                     <tr key={obj.id}>
                         <td>{obj.id}</td>
                         <td>{obj.libelle}</td>
@@ -84,11 +86,10 @@ return(
         </table>
     )}
 
-    <button onClick={() => navigate(`/objets/${id}`)}>
+    <button onClick={() => navigate(`/objets/nouveau?depot=${id}`)}>
         Ajouter un objet
     </button>
  </div>
 
 );
 }
- 
