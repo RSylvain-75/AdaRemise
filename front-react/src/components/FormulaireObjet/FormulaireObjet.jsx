@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import "./FormulaireObjet.css";
 
 const FormulaireObjet = () => {
+  // Récupère les paramètres présents dans l'URL.
+  const [searchParams] = useSearchParams();
+  // Récupère automatiquement l'id du dépôt transmis dans l'URL.
+  const depotIdUrl = searchParams.get("depot");
+
   const [libelle, setLibelle] = useState("");
   // poidsKg est stocké comme un nombre (conversion faite dans le onChange, voir plus bas)
   const [poidsKg, setPoidsKg] = useState("");
   const [etatArrivee, setEtatArrivee] = useState("");
   // categorieId est stocké comme un nombre, pas une chaîne, pour matcher ce qu'attend le back
   const [categorieId, setCategorieId] = useState("");
-  // depotId : saisi à la main pour l'instant (pas de select, faute de route GET /depots disponible)
-  const [depotId, setDepotId] = useState("");
+  // Récupère automatiquement l'id du dépôt depuis l'URL lorsqu'on arrive depuis une fiche dépôt.
+  // Si aucun dépôt n'est indiqué dans l'URL, le champ reste vide et peut être renseigné manuellement.
+ const [depotId, setDepotId] = useState(depotIdUrl ? Number(depotIdUrl) : "");
   // TODO: une fois GET /depots confirmé chez B et récupéré via Git,
   // ajouter ici un state pour la liste des dépôts, ex: const [listeDepots, setListeDepots] = useState([]);
   const [listeCategories, setListeCategories] = useState([]);
@@ -61,7 +67,10 @@ const FormulaireObjet = () => {
           depot_id: depotId,
         }),
       });
-      const donnees = await response.json();
+      
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout de l'objet");
+      }
       setSucces(true);
       // on remet chaque champ à sa valeur initiale pour permettre d'ajouter
       // un nouvel objet directement, sans recharger la page ni renaviguer
@@ -69,7 +78,11 @@ const FormulaireObjet = () => {
       setPoidsKg("");
       setEtatArrivee("");
       setCategorieId("");
+      // Si aucun dépôt n'a été transmis dans l'URL, on réinitialise son numéro.
+      // Sinon, on conserve l'id pour pouvoir ajouter plusieurs objets au même dépôt.
+      if (!depotIdUrl) {
       setDepotId("");
+      }
     } catch (err) {
       setErreur(err);
     }
@@ -133,16 +146,23 @@ const FormulaireObjet = () => {
           </select>
         </div>
 
-        {/* TODO: remplacer cet input par un <select> alimenté par listeDepots, une fois GET /depots disponible */}
+        {/* Si l'id du dépôt est transmis dans l'URL, il est utilisé automatiquement.
+          Sinon, le numéro du dépôt peut être renseigné manuellement. */}
+       {depotIdUrl ? (
+        <div className="formulaire-champ">
+          <label>Dépot</label>
+          <p>Dépot n°{depotId}</p>
+          </div>
+       ) : (
         <div className="formulaire-champ">
           <label>Numéro du dépôt</label>
           <input
-            type="number"
-            value={depotId}
-            onChange={(e) => setDepotId(Number(e.target.value))}
-            placeholder="Numéro du dépôt (ex: 5)"
+          type="number"
+          value={depotId}
+          onChange={(e) => setDepotId(Number(e.target.value))}
           />
-        </div>
+          </div>
+       )}
 
         <div className="formulaire-actions">
           <Link to="/" className="bouton-secondaire">

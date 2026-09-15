@@ -5,45 +5,53 @@ import { useNavigate } from "react-router-dom"; //tu dois npm install react-rout
 export default function NouveauDepot() {
     const [personnes, setPersonnes] = useState([]);
     const [personneId, setPersonneId] = useState("");
-    const [etat, setEtat] = useState("chargement ...");
     const [dateDepot, setDateDepot] = useState("");
     const [typeDepot, setTypeDepot] = useState("");
     const [benevole, setBenevole] = useState(null);
     const navigate = useNavigate();
     const [notes, setNotes] = useState("");
 
-
 useEffect(() => {
-    const id = localStorage.getItem("benevoleId");
-    
-
-    // if (id) {
-    //     async function chargerBenenvole() { // fait apparaître le benenvole connecter 
-    //     try {
-    //         const id = localStorage.getItem("benevoleId")
-    //         const res = await fetch('') // il faut cree des route avec benevole
-    //         const data = await res.json();
-    //         setBenevole(data);
-    //     } catch (error) {
-    //         console.error("Erreur chargement bénévole");
-            
-    //     }
-    // }
-    // chargerBenenvole();
-    // }
-
-    async function chargerPersonne() { // sert a selectionner la personne qui fait le depot
+    // Fonction qui récupère toutes les personnes enregistrées dans la base de données.
+    const chargerPersonnes = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/personnes');
-            const data = await res.json();
+            // Appel de l'API pour récupérer la liste des personnes.
+            const response = await fetch("http://localhost:3000/api/personnes");
+            // fetch ne déclenche pas automatiquement le catch pour une erreur HTTP
+            // comme 404 ou 500, donc on vérifie response.ok.
+            if (!response.ok) {
+                throw new Error("Erreur lors du chargement des personnes");
+            }
+            // Conversion de la réponse JSON en données JavaScript.
+            const data = await response.json();
+
+            // On stocke toutes les personnes pour pouvoir les afficher
+            // dans le select du donateur.
             setPersonnes(data);
+
+            // Récupère l'id du bénévole choisi précédemment
+            // sur la page "Qui es-tu ?".
+            const benevoleId = localStorage.getItem("benevoleId");
+            // Si un bénévole a bien été sélectionné...
+            if (benevoleId) {
+                // localStorage renvoie toujours du texte.
+                // Number() permet donc de comparer l'id avec les ids numériques de l'API.
+                const benevoleConnecte = data.find(
+                    (personne) => personne.id === Number(benevoleId)
+                );
+                // Enregistre les informations du bénévole trouvé.
+                // Si aucun bénévole ne correspond à l'id, on stocke null.
+                setBenevole(benevoleConnecte || null);
+            }
+            // Affiche l'erreur dans la console si l'API ne répond pas
+            // ou si le chargement des personnes échoue.
         } catch (error) {
-            setEtat("erreur");
+            console.error("Erreur du chargement personnes :", error);
         }
-        
-    }
-    chargerPersonne();
-},[])
+    };
+    // Lance le chargement lorsque le composant NouveauDepot apparaît
+    chargerPersonnes();
+}, []);
 
 async function handleCreerDepot() { // oblige a remplire c'est imformation pour pouvoir valider 
   if (!personneId || !dateDepot || !typeDepot) {
@@ -65,7 +73,12 @@ async function handleCreerDepot() { // oblige a remplire c'est imformation pour 
       body: JSON.stringify(nouveauDepot)
     });
 
+    if(!res.ok) {
+        throw new Error("Erreur lors de la création du dépôt");
+    }
+
     const data = await res.json();
+    
     if (!data.id) {
     alert("Le backend n’a pas renvoyé d’ID !");
     return;
@@ -108,12 +121,13 @@ return (
         <div>
            <h2>AdaRemise</h2> 
         </div>
-        {/* <div>
-            <span>
-                Connecté : {benevole ? `${benevole.nom} ${benevole.prenom}` : "Chargement..."}
-            </span>
-            <button type="button" onClick={handleLogout}>Déconnexion</button>
-        </div> */}
+
+            <div>
+                <span>
+                    Connecté : {benevole ? `${benevole.prenom} ${benevole.nom}` : "Chargement..."}
+                </span>
+            </div>
+
         <h1>Formulaire nouveau depot</h1>
 
         <label htmlFor="donnateur">Donateur </label>
@@ -171,7 +185,7 @@ return (
 
 
             <button
-            type="buton"
+            type="button"
             onClick={handleCancel}>
                 Annuler
             </button>

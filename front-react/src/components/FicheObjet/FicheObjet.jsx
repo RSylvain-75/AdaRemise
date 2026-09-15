@@ -17,9 +17,11 @@ const FicheObjet = ({ id: idProp }) => {
     const recupererObjet = async () => {
       try {
         const reponse = await fetch(`http://localhost:3000/api/objets/${id}`);
-        //fetch() ne considère pas un 404 comme une erreur JavaScript. 
-        // Donc actuellement, si /api/objets/${id} renvoie 404, 
-        // ton catch ne sera pas forcément déclenché.
+        // fetch ne déclenche pas automatiquement le catch pour une erreur HTTP.
+        // On vérifie donc la réponse avant de récupérer les données.
+        if (!reponse.ok) {
+        throw new Error("Erreur lors du chargement de l'objet");
+        }
         const donnees = await reponse.json();
         setStockageObjet(donnees);
         setChargement(false);
