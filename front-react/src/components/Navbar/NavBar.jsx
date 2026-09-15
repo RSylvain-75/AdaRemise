@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import "./Navbar.css";
 
 export default function NavBar() {
   const [benevole, setBenevole] = useState(null);
@@ -24,10 +25,11 @@ export default function NavBar() {
   }, []);
 
   return (
+    <div>
     <nav className="navbar">
         <h1>La Remise</h1>
       <Link to="/" className="nav-button">Déconnexion</Link>
-      <Link to="/dashboard" className=" dashboard-button">Tableau de bord</Link>
+      
 
       <div className="benevole-info">
         <span>
@@ -38,5 +40,11 @@ export default function NavBar() {
         </span>
       </div>
     </nav>
+    <nav className="sidebar">
+        <Link to="/liste" className="objet-button">Liste d'objet</Link>
+        <Link to="/dashboard" className="dashboard-button">Tableau de bord</Link>
+        <Link to="/depots/nouveau" className="Depot">Formulaire de depot</Link>
+    </nav>
+    </div>
   );
 }
