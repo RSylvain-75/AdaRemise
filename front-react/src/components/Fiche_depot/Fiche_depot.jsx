@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import FicheObjet from "../FicheObjet/FicheObjet";
+import "./Fiche_depot.css";
 
 export default function FicheDepot() {
   // id du dépôt actuellement affiché, lu depuis l'URL /depot/:id
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [depot, setDepot] = useState(null);
-  // Contient uniquement les objets associés au dépôt actuellement affiché.
+  // contient TOUT l'historique du donateur (tous ses dépôts confondus),
+  // pas seulement les objets de ce dépôt précis
   const [objetsDepot, setObjetsDepot] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  // objet cliqué dans la liste ; null = popup fermée (même principe que ListeObjets)
+  const [objetSelectionne, setObjetSelectionne] = useState(null);
 
-  // récupère le dépôt (qui contient déjà ses objets), à chaque changement d'id
   useEffect(() => {
     async function chargerDepot() {
       try {
@@ -22,9 +25,14 @@ export default function FicheDepot() {
         const data = await res.json();
         setDepot(data);
 
-        // La route GET /api/depots/:id renvoie déjà les objets du dépôt.
-        // On évite donc un deuxième appel API vers l'historique du donateur.
-        setObjetsDepot(Array.isArray(data.objets) ? data.objets : []);
+        // deuxième appel, vers l'historique complet du donateur (via son personne_id),
+        // pas vers data.objets (qui ne contiendrait que les objets de CE dépôt précis)
+        const resObjets = await fetch(
+          `http://localhost:3000/api/personnes/${data.personne_id}/objets`,
+        );
+        if (!resObjets.ok) throw new Error("Impossible de charger l'historique");
+        const anciens = await resObjets.json();
+        setObjetsDepot(Array.isArray(anciens) ? anciens : []);
       } catch (error) {
         setErreur(error.message);
       } finally {
@@ -56,10 +64,10 @@ export default function FicheDepot() {
         </p>
       </section>
 
-      <h3>Objets du dépôt ({objetsDepot.length})</h3>
+      <h3>Historique des dons de ce donateur ({objetsDepot.length})</h3>
 
       {objetsDepot.length === 0 ? (
-        <p>Aucun objet pour ce dépôt.</p>
+        <p>Aucun objet pour ce donateur.</p>
       ) : (
         <table>
           <thead>
@@ -84,15 +92,7 @@ export default function FicheDepot() {
                   <td>{obj.statut}</td>
                   <td>{obj.poids_kg} kg</td>
                   <td>
-                    {/* state: { depotId: id } transmet l'origine à FicheObjet, sans l'exposer
-                        dans l'URL — permet d'y afficher "Retour au dépôt" plutôt que "Retour à la liste" */}
-                    <button
-                      onClick={() =>
-                        navigate(`/objets/${obj.id}`, {
-                          state: { depotId: id },
-                        })
-                      }
-                    >
+                    <button onClick={() => setObjetSelectionne(obj)}>
                       Voir
                     </button>
                   </td>
@@ -102,11 +102,20 @@ export default function FicheDepot() {
         </table>
       )}
 
-      {/* redirige vers le formulaire d'ajout d'objet, avec ce dépôt déjà connu dans l'URL
-          (route /objets/nouveau/:depotId), pour pré-remplir le champ dépôt automatiquement */}
-      <button onClick={() => navigate(`/objets/nouveau/${id}`)}>
-        Ajouter un objet
-      </button>
+      <a href={`/objets/nouveau/${id}`}>
+        <button>Ajouter un objet</button>
+      </a>
+
+      {objetSelectionne && (
+        <div className="popup-overlay" onClick={() => setObjetSelectionne(null)}>
+          <div className="popup-carte" onClick={(e) => e.stopPropagation()}>
+            <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
+              ✕
+            </button>
+            <FicheObjet id={objetSelectionne.id} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

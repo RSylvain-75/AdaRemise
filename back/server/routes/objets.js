@@ -77,13 +77,8 @@ router.get("/:id", async (req, res) => {
 });
 
 router.patch("/:id/statut", async (req, res) => {
-    // Convertit l'identifiant de l'objet en nombre pour PostgreSQL
-const id = Number(req.params.id);
-// Vérifie la valeur de l'identifiant reçue par l'API
-console.log("ID reçu :", req.params.id);
-console.log("ID converti :", id);
-    const { statut } = req.body ?? {};  // Modifie uniquement le statut d'un objet
-    // auparavant { statut, prix }
+    const id = Number(req.params.id);
+    const { statut } = req.body ?? {};
 
     if (statut !== "arrive" &&
         statut !== "en_reparation" &&
@@ -95,14 +90,14 @@ console.log("ID converti :", id);
         });
     }
 
-    try { 
+    try {
         const result = await pool.query(
             `UPDATE objet
              SET statut = $1
              WHERE id = $2
              RETURNING *`,
             [statut, id]
-        ); 
+        );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
@@ -186,5 +181,25 @@ router.post("/", async (req, res) => {
 
 });
 
+// supprime un objet par son id, utilisé pour nettoyer les objets créés lors des tests
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM objet WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "objet introuvable" });
+    }
+
+    res.status(200).json({ message: "objet supprimé", objet: result.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "erreur serveur" });
+  }
+});
 
 export default router;

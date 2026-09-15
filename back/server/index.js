@@ -5,6 +5,7 @@ import objetsRouter from "./routes/objets.js";
 import depotsRouter from "./routes/depots.js";
 import personnesRouter from "./routes/personnes.js";
 import statsRouter from "./routes/stats.js";
+import benevolesRouter from "./routes/benevoles.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json" with { type: "json" };
 
@@ -18,6 +19,7 @@ app.use("/api/objets", objetsRouter);
 app.use("/api/depots", depotsRouter);
 app.use("/api/personnes", personnesRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/benevoles", benevolesRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(process.env.PORT || 3000, () => {
