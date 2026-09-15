@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function QuiEsTu() {
+// onIdentification vient de App.jsx (c'est en réalité sa fonction setBenevoleId) :
+// l'appeler ici permet de mettre à jour l'état de App, pas seulement celui de QuiEsTu
+function QuiEsTu({ onIdentification }) {
   const [personnes, setPersonnes] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
@@ -11,17 +13,17 @@ function QuiEsTu() {
   useEffect(() => {
     const recupererPersonnes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/personnes");
+      const response = await fetch("http://localhost:3000/api/benevoles");
 
         if (!response.ok) {
-          throw new Error("Erreur lors du chargement des personnes");
+          throw new Error("Erreur lors du chargement des benevoles");
         }
 
         const data = await response.json();
         setPersonnes(data);
       } catch (error) {
         console.error(error);
-        setErreur("Impossible de charger la liste des personnes.");
+        setErreur("Impossible de charger la liste des benevoles.");
       } finally {
         setChargement(false);
       }
@@ -31,7 +33,12 @@ function QuiEsTu() {
   }, []);
 
   const selectionnerBenevole = (personne) => {
+    // localStorage : persiste l'identification même après un rechargement de page
     localStorage.setItem("benevoleId", personne.id);
+    // onIdentification : met à jour l'état React de App, pour que le re-rendu
+    // se déclenche AVANT que navigate("/") ne change l'URL — sans cet appel,
+    // App afficherait encore l'ancienne valeur (null) juste après la navigation
+    onIdentification(personne.id);
     navigate("/");
   };
 

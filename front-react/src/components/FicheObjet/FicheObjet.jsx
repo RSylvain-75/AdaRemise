@@ -2,32 +2,26 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import "./FicheObjet.css";
 
-const FicheObjet = ({ id: idProp }) => {
+const FicheObjet = ({ id: idProp, onModification, onSuppression }) => {
   const { id: idUrl } = useParams();
   // id vient soit d'une prop (popup, appelé depuis ListeObjets), soit de l'URL (page /objets/:id)
   const id = idProp || idUrl;
   // location.state permet de recevoir des infos "invisibles" dans l'URL, passées par le composant
   // qui a déclenché la navigation (ici : Fiche_depot, via navigate(url, { state: { depotId } })).
-  // Attention : cette info ne survit PAS à un rechargement de page (F5) ni à un accès direct
-  // à l'URL — dans ces cas, location.state vaut undefined, et le lien retombe sur "/" (comportement
-  // normal, géré par le ?. et le ternaire juste en dessous)
+  // Ne survit pas à un rechargement de page ni à un accès direct à l'URL : dans ces cas,
+  // depotIdOrigine vaut undefined et le lien retombe sur "/" (voir plus bas)
   const location = useLocation();
-  // optional chaining (?.) : si on arrive ici sans state (ex: popup, ou lien direct), pas d'erreur,
-  // depotIdOrigine vaut simplement undefined
   const depotIdOrigine = location.state?.depotId;
 
   // objet complet reçu de l'API ; null tant qu'il n'est pas encore chargé
   const [stockageObjet, setStockageObjet] = useState(null);
-  // true tant que le fetch n'est pas terminé
   const [chargement, setChargement] = useState(true);
-  // contient l'erreur si le CHARGEMENT INITIAL échoue, sinon null ; déclenche les deux if
-  // ci-dessous, qui remplacent toute la fiche par un message — normal pour ce cas précis
+  // erreur de CHARGEMENT INITIAL uniquement : déclenche les deux if ci-dessous,
+  // qui remplacent toute la fiche par un message
   const [erreur, setErreur] = useState(null);
-  // statut choisi dans le menu déroulant, avant validation ; vide tant que rien n'est sélectionné
   const [nouveauStatut, setNouveauStatut] = useState("");
-  // erreur liée au changement de statut, séparée de "erreur" : contrairement à "erreur",
-  // celle-ci s'affiche localement à côté du bouton, sans faire disparaître toute la fiche
-  // (même piège que celui déjà rencontré dans FormulaireObjet)
+  // erreur liée au changement de statut OU à la suppression, séparée de "erreur" :
+  // s'affiche localement à côté du bouton, sans faire disparaître toute la fiche
   const [erreurStatut, setErreurStatut] = useState("");
 
   // se relance à chaque fois que "id" change, pour aller chercher les détails de l'objet correspondant
@@ -35,11 +29,9 @@ const FicheObjet = ({ id: idProp }) => {
     const recupererObjet = async () => {
       try {
         const reponse = await fetch(`http://localhost:3000/api/objets/${id}`);
+        // fetch() ne considère pas un 404/500 comme une erreur JS : sans ce throw,
+        // le code continuerait et afficherait un objet vide/incomplet à l'écran
         if (!reponse.ok) {
-          // throw arrête immédiatement l'exécution de cette fonction et fait directement
-          // "sauter" au bloc catch ci-dessous, comme si une vraie erreur réseau s'était produite.
-          // Nécessaire ici car fetch() ne considère PAS un 404/500 comme une erreur : sans ce throw,
-          // le code continuerait normalement et afficherait un objet vide/incomplet à l'écran.
           throw new Error("Impossible de charger les détails de l'objet.");
         }
         const donnees = await reponse.json();
@@ -56,7 +48,6 @@ const FicheObjet = ({ id: idProp }) => {
 
   // envoie le nouveau statut au back (PATCH), déclenché au clic sur "Mettre à jour"
   const modifierStatut = async () => {
-    // validation avant envoi : évite un appel API inutile si rien n'est sélectionné
     if (!nouveauStatut) {
       setErreurStatut("Choisis un statut avant de valider.");
       return;
@@ -71,22 +62,55 @@ const FicheObjet = ({ id: idProp }) => {
           body: JSON.stringify({ statut: nouveauStatut }),
         },
       );
-      // même piège que pour le chargement initial : fetch() ne considère pas un 400
-      // comme une erreur, donc sans ce throw, un statut invalide écraserait stockageObjet
-      // avec l'objet d'erreur renvoyé par le back ({ error: "statut invalide" })
       if (!response.ok) {
         throw new Error("Impossible de mettre à jour le statut.");
       }
       const donnees = await response.json();
-      // la route back fait un RETURNING *, donc "donnees" contient déjà l'objet à jour :
-      // on remplace directement stockageObjet, pas besoin de refaire un fetch séparé
-      setStockageObjet(donnees);
+      // PATCH /:id/statut fait un RETURNING * sur la table "objet" seule : donnees contient
+      // le bon statut mais PAS "categorie" (qui vient d'un JOIN, absent de cette route).
+      // On fusionne avec l'ancien objet plutôt que de le remplacer, pour garder "categorie"
+      // tout en mettant à jour "statut" (et les autres champs présents dans donnees)
+      setStockageObjet((ancienObjet) => ({ ...ancienObjet, ...donnees }));
+      // onModification n'existe QUE si FicheObjet est utilisé en popup (voir ListeObjets) ;
+      // en mode page (/objets/:id), cette prop n'existe pas
+      if (onModification) {
+        onModification(donnees);
+      }
     } catch (err) {
       setErreurStatut("Impossible de mettre à jour le statut.");
     }
   };
 
-  // trois écrans possibles : chargement, erreur, ou la fiche normale
+  // supprime l'objet (DELETE), déclenché au clic sur "Supprimer", avec confirmation
+  const supprimerObjet = async () => {
+    const confirmation = window.confirm(
+      "Voulez-vous vraiment supprimer cet objet ?",
+    );
+    if (!confirmation) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/objets/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Impossible de supprimer l'objet.");
+      }
+      // prévient ListeObjets pour qu'il retire l'objet du tableau et ferme la popup
+      // (même piège que onModification : cette prop n'existe qu'en mode popup)
+      if (onSuppression) {
+        onSuppression(id);
+      }
+    } catch (err) {
+      setErreurStatut("Impossible de supprimer l'objet.");
+    }
+  };
+
+  const formaterDate = (dateIso) => {
+    if (!dateIso) return "-";
+    const date = new Date(dateIso);
+    return date.toLocaleDateString("fr-FR");
+  };
+
   if (chargement) {
     return <p className="page-message"> Chargement... </p>;
   }
@@ -110,12 +134,10 @@ const FicheObjet = ({ id: idProp }) => {
       <h1>Objet #{stockageObjet.id}</h1>
 
       <div className="fiche-contenu">
-        {/* emplacement image, non fonctionnel pour l'instant (pas de gestion de photo en V1) */}
         <div className="fiche-image-placeholder">
           <span>Pas d'image</span>
         </div>
 
-        {/* bloc des infos texte, une ligne label/valeur par information */}
         <div className="fiche-infos">
           <div className="fiche-ligne">
             <span>Nom</span>
@@ -136,13 +158,21 @@ const FicheObjet = ({ id: idProp }) => {
               {stockageObjet.statut}
             </span>
           </div>
+          {/* prix affiché uniquement s'il existe (objet en_rayon ou vendu) : le brief
+              précise que le prix n'a de sens que pour ces deux statuts, pas pour tous */}
+          {stockageObjet.prix && (
+            <div className="fiche-ligne">
+              <span>Prix</span>
+              <span>{stockageObjet.prix} €</span>
+            </div>
+          )}
           <div className="fiche-ligne">
             <span>Poids</span>
             <span>{stockageObjet.poids_kg} kg</span>
           </div>
           <div className="fiche-ligne">
             <span>Date d'arrivée</span>
-            <span>{stockageObjet.date_depot}</span>
+            <span>{formaterDate(stockageObjet.date_depot)}</span>
           </div>
           <div className="fiche-ligne">
             <span>Dépôt</span>
@@ -151,8 +181,8 @@ const FicheObjet = ({ id: idProp }) => {
         </div>
       </div>
 
-      {/* changement de statut : menu déroulant + bouton, connecté à PATCH /objets/:id/statut.
-          Fonctionnalité normalement du domaine C, ajoutée ici après accord de l'équipe */}
+      {/* changement de statut : fonctionnalité normalement du domaine C,
+          ajoutée ici après accord de l'équipe */}
       <div className="fiche-modif-statut">
         <h2>Modifier le statut</h2>
         <div className="fiche-modif-champ">
@@ -170,10 +200,14 @@ const FicheObjet = ({ id: idProp }) => {
           <button className="bouton-primaire" onClick={modifierStatut}>
             Mettre à jour
           </button>
-          {/* affichage conditionnel : ce message n'apparaît que si erreurStatut contient un texte */}
           {erreurStatut && <p className="message-erreur">{erreurStatut}</p>}
         </div>
       </div>
+
+      {/* suppression de l'objet, avec confirmation avant l'appel API */}
+      <button className="bouton-supprimer" onClick={supprimerObjet}>
+        🗑️ Supprimer
+      </button>
     </div>
   );
 };

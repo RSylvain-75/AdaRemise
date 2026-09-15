@@ -4,21 +4,17 @@ import FicheObjet from "../FicheObjet/FicheObjet";
 import "./ListeObjets.css";
 
 const ListeObjets = () => {
-  // liste des objets reçus de l'API
   const [listeObjets, setListeObjets] = useState([]);
-  // true tant que le tout premier fetch n'est pas terminé
   const [chargement, setChargement] = useState(true);
-  // contient l'erreur si un fetch échoue, sinon null
   const [erreur, setErreur] = useState(null);
   // statut actuellement sélectionné dans le filtre ("" = tous)
   const [statutFiltre, setStatutFiltre] = useState("");
-  // liste des catégories reçues de l'API, pour peupler le <select>
   const [listeCategories, setListeCategories] = useState([]);
   // catégorie actuellement sélectionnée dans le filtre ("" = toutes)
   const [typeCategories, setTypeCategories] = useState("");
   // objet cliqué dans la liste ; null = popup fermée.
-  // on ne stocke QUE cet id/objet partiel ici : FicheObjet se charge lui-même
-  // de récupérer et d'afficher le détail complet, donc pas de deuxième fetch à gérer ici
+  // FicheObjet se charge lui-même de récupérer et d'afficher le détail complet,
+  // donc pas de deuxième fetch à gérer ici
   const [objetSelectionne, setObjetSelectionne] = useState(null);
 
   // récupère les objets, relancé à chaque changement de filtre (statut ou catégorie)
@@ -35,9 +31,6 @@ const ListeObjets = () => {
         const url = `http://localhost:3000/api/objets?${params.toString()}`;
 
         const response = await fetch(url);
-        // fetch() ne considère pas un 400/500 comme une erreur JS : sans cette vérification,
-        // le catch ne se déclencherait pas et setListeObjets recevrait l'objet d'erreur
-        // renvoyé par le back au lieu d'un vrai tableau d'objets
         if (!response.ok) {
           throw new Error("Impossible de charger les objets.");
         }
@@ -57,7 +50,6 @@ const ListeObjets = () => {
     const recupererCategories = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/categories");
-        // même vérification que pour les objets, voir commentaire ci-dessus
         if (!response.ok) {
           throw new Error("Impossible de charger les catégories.");
         }
@@ -75,13 +67,31 @@ const ListeObjets = () => {
     setTypeCategories("");
   };
 
-  // convertit une date ISO (ex: "2026-07-23T22:00:00.000Z") en format lisible JJ/MM/AAAA
-  // renvoie "-" si la date est absente (objet encore "arrivé", pas encore mis en rayon)
+  // convertit une date ISO en JJ/MM/AAAA ; "-" si absente (objet encore "arrivé")
   const formaterDate = (dateIso) => {
     if (!dateIso) return "-";
     const date = new Date(dateIso);
     return date.toLocaleDateString("fr-FR");
   };
+
+  // met à jour UN SEUL objet dans listeObjets (celui dont le statut vient de changer),
+  // sans refaire de fetch. Fusionne avec l'ancien objet (via {...objet, ...objetModifie})
+  // plutôt que de le remplacer, car objetModifie (venu de PATCH /:id/statut) n'a pas
+  // le champ "categorie" — le remplacement entier ferait disparaître ce champ à l'écran
+  const mettreAJourObjet = (objetModifie) => {
+    setListeObjets((ancienneListe) =>
+      ancienneListe.map((objet) =>
+        objet.id === objetModifie.id ? { ...objet, ...objetModifie } : objet
+      )
+    );
+  };
+
+  const supprimerDeLaListe = (idSupprime) => {
+  setListeObjets((ancienneListe) =>
+    ancienneListe.filter((objet) => objet.id !== idSupprime)
+  );
+  setObjetSelectionne(null);
+};
 
   if (chargement) {
     return <p className="page-message"> Chargement... </p>;
@@ -135,7 +145,6 @@ const ListeObjets = () => {
         </button>
       </div>
 
-      {/* liste vide -> message "Aucun objet trouvé" ; sinon -> le tableau */}
       {listeObjets.length === 0 ? (
         <div className="etat-vide">
           <p>Aucun objet trouvé</p>
@@ -172,18 +181,17 @@ const ListeObjets = () => {
         </table>
       )}
 
-      {/* la popup réutilise directement le composant FicheObjet, en lui passant l'id en prop
-          (au lieu de recréer un deuxième fetch + un deuxième affichage détaillé ici) */}
+      {/* la popup réutilise directement FicheObjet, en lui passant id et onModification */}
       {objetSelectionne && (
-        // cliquer sur l'overlay (le fond assombri) ferme la popup
         <div className="popup-overlay" onClick={() => setObjetSelectionne(null)}>
-          {/* stopPropagation empêche un clic à l'intérieur de la carte de "remonter"
-              jusqu'à l'overlay et de fermer la popup par erreur */}
+          {/* stopPropagation empêche un clic dans la carte de fermer la popup par erreur */}
           <div className="popup-carte" onClick={(e) => e.stopPropagation()}>
             <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
               ✕
             </button>
-            <FicheObjet id={objetSelectionne.id} />
+            {/* onModification permet à FicheObjet de "prévenir" ListeObjets quand le statut
+                change, pour que le tableau reflète le changement après fermeture de la popup */}
+            <FicheObjet id={objetSelectionne.id} onModification={mettreAJourObjet} onSuppression={supprimerDeLaListe} />
           </div>
         </div>
       )}
