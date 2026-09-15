@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import FicheObjet from "../FicheObjet/FicheObjet";
+import "./Fiche_depot.css";
 
 export default function FicheDepot() {
   // id du dépôt actuellement affiché, lu depuis l'URL /depot/:id
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [depot, setDepot] = useState(null);
   // Contient uniquement les objets associés au dépôt actuellement affiché.
   const [objetsDepot, setObjetsDepot] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  // objet cliqué dans la liste ; null = popup fermée (même principe que ListeObjets)
+  const [objetSelectionne, setObjetSelectionne] = useState(null);
 
   // récupère le dépôt (qui contient déjà ses objets), à chaque changement d'id
   useEffect(() => {
@@ -84,15 +87,9 @@ export default function FicheDepot() {
                   <td>{obj.statut}</td>
                   <td>{obj.poids_kg} kg</td>
                   <td>
-                    {/* state: { depotId: id } transmet l'origine à FicheObjet, sans l'exposer
-                        dans l'URL — permet d'y afficher "Retour au dépôt" plutôt que "Retour à la liste" */}
-                    <button
-                      onClick={() =>
-                        navigate(`/objets/${obj.id}`, {
-                          state: { depotId: id },
-                        })
-                      }
-                    >
+                    {/* remplace navigate(...) par un simple changement d'état local :
+                        on reste sur la fiche du dépôt, la fiche objet s'affiche en popup par-dessus */}
+                    <button onClick={() => setObjetSelectionne(obj)}>
                       Voir
                     </button>
                   </td>
@@ -104,9 +101,21 @@ export default function FicheDepot() {
 
       {/* redirige vers le formulaire d'ajout d'objet, avec ce dépôt déjà connu dans l'URL
           (route /objets/nouveau/:depotId), pour pré-remplir le champ dépôt automatiquement */}
-      <button onClick={() => navigate(`/objets/nouveau/${id}`)}>
-        Ajouter un objet
-      </button>
+      <a href={`/objets/nouveau/${id}`}>
+        <button>Ajouter un objet</button>
+      </a>
+
+      {/* popup de détail : même principe que dans ListeObjets.jsx */}
+      {objetSelectionne && (
+        <div className="popup-overlay" onClick={() => setObjetSelectionne(null)}>
+          <div className="popup-carte" onClick={(e) => e.stopPropagation()}>
+            <button className="bouton-fermer" onClick={() => setObjetSelectionne(null)}>
+              ✕
+            </button>
+            <FicheObjet id={objetSelectionne.id} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

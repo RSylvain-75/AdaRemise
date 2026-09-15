@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function QuiEsTu() {
+// onIdentification vient de App.jsx (c'est en réalité sa fonction setBenevoleId) :
+// l'appeler ici permet de mettre à jour l'état de App, pas seulement celui de QuiEsTu
+function QuiEsTu({ onIdentification }) {
   const [personnes, setPersonnes] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
@@ -31,7 +33,12 @@ function QuiEsTu() {
   }, []);
 
   const selectionnerBenevole = (personne) => {
+    // localStorage : persiste l'identification même après un rechargement de page
     localStorage.setItem("benevoleId", personne.id);
+    // onIdentification : met à jour l'état React de App, pour que le re-rendu
+    // se déclenche AVANT que navigate("/") ne change l'URL — sans cet appel,
+    // App afficherait encore l'ancienne valeur (null) juste après la navigation
+    onIdentification(personne.id);
     navigate("/");
   };
 
