@@ -114,7 +114,10 @@ export default function NouveauDepot() {
             Donateur *
             <select
               value={personneId}
-              onChange={(e) => setPersonneId(e.target.value)}
+              // corrigé : e.target.value est toujours une chaîne, même pour un <select>
+              // dont les options sont des nombres — la route back exige un vrai type
+              // "number" pour personne_id (typeof personne_id !== "number"), d'où le 400
+              onChange={(e) => setPersonneId(Number(e.target.value))}
             >
               <option value="">Sélectionner un donateur existant</option>
               {personnes.map((personne) => (
