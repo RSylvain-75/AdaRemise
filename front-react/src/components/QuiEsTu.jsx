@@ -32,7 +32,7 @@ function QuiEsTu() {
 
   const selectionnerBenevole = (personne) => {
     localStorage.setItem("benevoleId", personne.id);
-    navigate("/");
+    navigate("/liste");
   };
 
   if (chargement) {

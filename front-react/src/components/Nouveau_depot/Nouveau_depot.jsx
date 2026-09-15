@@ -7,7 +7,6 @@ export default function NouveauDepot() {
     const [personneId, setPersonneId] = useState("");
     const [dateDepot, setDateDepot] = useState("");
     const [typeDepot, setTypeDepot] = useState("");
-    const [benevole, setBenevole] = useState(null);
     const navigate = useNavigate();
     const [notes, setNotes] = useState("");
 
@@ -29,20 +28,7 @@ useEffect(() => {
             // dans le select du donateur.
             setPersonnes(data);
 
-            // Récupère l'id du bénévole choisi précédemment
-            // sur la page "Qui es-tu ?".
-            const benevoleId = localStorage.getItem("benevoleId");
-            // Si un bénévole a bien été sélectionné...
-            if (benevoleId) {
-                // localStorage renvoie toujours du texte.
-                // Number() permet donc de comparer l'id avec les ids numériques de l'API.
-                const benevoleConnecte = data.find(
-                    (personne) => personne.id === Number(benevoleId)
-                );
-                // Enregistre les informations du bénévole trouvé.
-                // Si aucun bénévole ne correspond à l'id, on stocke null.
-                setBenevole(benevoleConnecte || null);
-            }
+
             // Affiche l'erreur dans la console si l'API ne répond pas
             // ou si le chargement des personnes échoue.
         } catch (error) {
@@ -122,11 +108,7 @@ return (
            <h2>AdaRemise</h2> 
         </div>
 
-            <div>
-                <span>
-                    Connecté : {benevole ? `${benevole.prenom} ${benevole.nom}` : "Chargement..."}
-                </span>
-            </div>
+
 
         <h1>Formulaire nouveau depot</h1>
 
