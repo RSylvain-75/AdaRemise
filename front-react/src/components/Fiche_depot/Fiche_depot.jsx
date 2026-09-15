@@ -4,12 +4,16 @@ import FicheObjet from "../FicheObjet/FicheObjet";
 import "./Fiche_depot.css";
 
 export default function FicheDepot() {
+  // id du dépôt actuellement affiché, lu depuis l'URL /depot/:id
   const { id } = useParams();
 
   const [depot, setDepot] = useState(null);
+  // contient TOUT l'historique du donateur (tous ses dépôts confondus),
+  // pas seulement les objets de ce dépôt précis
   const [objetsDepot, setObjetsDepot] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  // objet cliqué dans la liste ; null = popup fermée (même principe que ListeObjets)
   const [objetSelectionne, setObjetSelectionne] = useState(null);
 
   useEffect(() => {
@@ -20,7 +24,15 @@ export default function FicheDepot() {
 
         const data = await res.json();
         setDepot(data);
-        setObjetsDepot(Array.isArray(data.objets) ? data.objets : []);
+
+        // deuxième appel, vers l'historique complet du donateur (via son personne_id),
+        // pas vers data.objets (qui ne contiendrait que les objets de CE dépôt précis)
+        const resObjets = await fetch(
+          `http://localhost:3000/api/personnes/${data.personne_id}/objets`,
+        );
+        if (!resObjets.ok) throw new Error("Impossible de charger l'historique");
+        const anciens = await resObjets.json();
+        setObjetsDepot(Array.isArray(anciens) ? anciens : []);
       } catch (error) {
         setErreur(error.message);
       } finally {
@@ -52,10 +64,10 @@ export default function FicheDepot() {
         </p>
       </section>
 
-      <h3>Objets du dépôt ({objetsDepot.length})</h3>
+      <h3>Historique des dons de ce donateur ({objetsDepot.length})</h3>
 
       {objetsDepot.length === 0 ? (
-        <p>Aucun objet pour ce dépôt.</p>
+        <p>Aucun objet pour ce donateur.</p>
       ) : (
         <table>
           <thead>
