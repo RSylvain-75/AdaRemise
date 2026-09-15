@@ -16,25 +16,9 @@ export default function NouveauDepot() {
   const [erreur, setErreur] = useState(null);
   const [succes, setSucces] = useState(false);
 
-  const benevoleId = localStorage.getItem("benevoleId");
+  
 
-  // --- Charger le bénévole connecté ---
-  useEffect(() => {
-    if (!benevoleId) return;
 
-    async function chargerBenevole() {
-      try {
-        const res = await fetch(`http://localhost:3000/api/benevoles/${benevoleId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setBenevole(data);
-      } catch (error) {
-        console.error("Erreur chargement bénévole :", error);
-      }
-    }
-
-    chargerBenevole();
-  }, [benevoleId]);
 
   // --- Charger la liste des donateurs ---
   useEffect(() => {
@@ -99,16 +83,6 @@ export default function NouveauDepot() {
 
   return (
     <div>
-      <header>
-        <h1>AdaRemise</h1>
-        {benevole && (
-          <p>
-            Connecté : {benevole.prenom} {benevole.nom}
-          </p>
-        )}
-        <button onClick={handleLogout}>Déconnexion</button>
-      </header>
-
       <main>
         <h2>Nouveau dépôt</h2>
 

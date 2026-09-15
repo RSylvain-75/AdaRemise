@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// onIdentification vient de App.jsx (c'est en réalité sa fonction setBenevoleId) :
-// l'appeler ici permet de mettre à jour l'état de App, pas seulement celui de QuiEsTu
 function QuiEsTu({ onIdentification }) {
   const [personnes, setPersonnes] = useState([]);
   const [chargement, setChargement] = useState(true);
@@ -13,17 +11,23 @@ function QuiEsTu({ onIdentification }) {
   useEffect(() => {
     const recupererPersonnes = async () => {
       try {
-      const response = await fetch("http://localhost:3000/api/benevoles");
+        const response = await fetch("http://localhost:3000/api/benevoles");
 
         if (!response.ok) {
-          throw new Error("Erreur lors du chargement des benevoles");
+          throw new Error("Erreur lors du chargement des bénévoles");
         }
 
         const data = await response.json();
+
+        // Vérification utile
+        if (!Array.isArray(data)) {
+          throw new Error("Format de données invalide");
+        }
+
         setPersonnes(data);
       } catch (error) {
         console.error(error);
-        setErreur("Impossible de charger la liste des benevoles.");
+        setErreur("Impossible de charger la liste des bénévoles.");
       } finally {
         setChargement(false);
       }
@@ -33,22 +37,12 @@ function QuiEsTu({ onIdentification }) {
   }, []);
 
   const selectionnerBenevole = (personne) => {
-    // localStorage : persiste l'identification même après un rechargement de page
     localStorage.setItem("benevoleId", personne.id);
-    // onIdentification : met à jour l'état React de App, pour que le re-rendu
-    // se déclenche AVANT que navigate("/") ne change l'URL — sans cet appel,
-    // App afficherait encore l'ancienne valeur (null) juste après la navigation
-    onIdentification(personne.id);
     navigate("/liste");
   };
 
-  if (chargement) {
-    return <p>Chargement des personnes...</p>;
-  }
-
-  if (erreur) {
-    return <p>{erreur}</p>;
-  }
+  if (chargement) return <p>Chargement des personnes...</p>;
+  if (erreur) return <p>{erreur}</p>;
 
   return (
     <main>

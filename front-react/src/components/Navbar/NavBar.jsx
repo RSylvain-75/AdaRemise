@@ -25,6 +25,7 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
+        <h1>La Remise</h1>
       <Link to="/" className="nav-button">Déconnexion</Link>
       <Link to="/dashboard" className=" dashboard-button">Tableau de bord</Link>
 
