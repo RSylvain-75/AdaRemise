@@ -32,3 +32,62 @@
 - Rafraîchir l'indicateur de chargement au changement de filtre, pas seulement au premier affichage.
 - Une commande unique pour lancer back et front ensemble (ex: `concurrently`, avec un `package.json` racine dédié), au lieu de deux terminaux séparés.
 - Généraliser l'affichage en popup à `Fiche_depot.jsx` (domaine B), pour une navigation cohérente partout dans l'application.
+
+
+
+Parcours bénévole et suivi des objets
+## Tâches réalisées
+
+1. Identification du bénévole
+Création de la récupération des personnes depuis l’API.
+Mise en place de la route GET /api/personnes.
+Récupération des données depuis PostgreSQL.
+Affichage de la liste des personnes dans l’interface React.
+Création du composant QuiEsTu.jsx.
+Sélection d’un bénévole depuis l’interface.
+Conservation et transmission de la personne sélectionnée.
+Fichiers concernés :
+back/server/routes/personnes.js
+front-react/src/components/QuiEsTu.jsx
+2. Navigation de l’application
+Mise en place de React Router.
+Création du parcours entre la page principale et la page « Qui es-tu ? ».
+Utilisation de BrowserRouter, Routes, Route et navigate().
+Fichiers concernés lors de la mise en place :
+front-react/src/main.jsx
+front-react/src/routes/AppRoutes.jsx
+L’architecture du routing a ensuite évolué avec les modifications intégrées au travail collectif.
+3. Suivi du statut des objets
+Mise en place de la modification du statut d’un objet.
+Création/utilisation de la route PATCH /api/objets/:id/statut.
+Vérification du statut envoyé par l’application.
+Mise à jour du statut dans PostgreSQL.
+Intégration de la modification du statut côté React.
+Fichiers concernés :
+back/server/routes/objets.js
+composants React concernés par l’affichage et la modification du statut.
+
+## État final
+Le travail réalisé suit le parcours suivant :
+Identification du bénévole
+GET /api/personnes
+Sélection dans « Qui es-tu ? »
+Navigation dans l'application
+Consultation des objets
+Modification du statut
+PATCH /api/objets/:id/statut
+Mise à jour en base PostgreSQL
+
+
+## Objectif du travail réalisé
+Permettre au bénévole de s’identifier dans l’application et de participer au suivi de l’évolution des objets grâce à la modification de leur statut.
+
+## piste pour les prochaines versions
+
+- Ajouter une barre de recherche permettant de trouver rapidement un bénévole par nom ou prénom, au lieu de parcourir toute la liste.
+
+- Afficher le profil du bénévole
+Après sélection, afficher un petit résumé :
+prénom + nom ;
+éventuellement ses compétences ;
+son rôle ou ses informations utiles.
