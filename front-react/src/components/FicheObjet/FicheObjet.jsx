@@ -2,6 +2,19 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import "./FicheObjet.css";
 
+// Associe chaque catégorie de la BDD à son image générique.
+// Les images sont stockées dans public/images/categories.
+const imagesCategories = {
+  Mobilier: "/images/categories/mobilier.png",
+  Électroménager: "/images/categories/electromenager.png",
+  Vaisselle: "/images/categories/vaisselle.png",
+  Textile: "/images/categories/textile.png",
+  Livres: "/images/categories/livres.png",
+  Jouets: "/images/categories/jouets.png",
+  Outillage: "/images/categories/outillage.png",
+  Décoration: "/images/categories/decoration.png",
+};
+
 const FicheObjet = ({ id: idProp }) => {
   const { id: idUrl } = useParams();
   // id vient soit d'une prop (popup, appelé depuis ListeObjets), soit de l'URL (page /objets/:id)
@@ -81,7 +94,7 @@ const FicheObjet = ({ id: idProp }) => {
       // la route back fait un RETURNING *, donc "donnees" contient déjà l'objet à jour :
       // on remplace directement stockageObjet, pas besoin de refaire un fetch séparé
       setStockageObjet(donnees);
-    } catch (err) {
+    } catch {
       setErreurStatut("Impossible de mettre à jour le statut.");
     }
   };
@@ -110,9 +123,14 @@ const FicheObjet = ({ id: idProp }) => {
       <h1>Objet #{stockageObjet.id}</h1>
 
       <div className="fiche-contenu">
-        {/* emplacement image, non fonctionnel pour l'instant (pas de gestion de photo en V1) */}
+       
+       {/* L'image affichée dépend de la catégorie de l'objet. */}
         <div className="fiche-image-placeholder">
-          <span>Pas d'image</span>
+          <img
+            src={imagesCategories[stockageObjet.categorie]}
+            alt={`Catégorie ${stockageObjet.categorie}`}
+            className="fiche-image"
+          />
         </div>
 
         {/* bloc des infos texte, une ligne label/valeur par information */}
