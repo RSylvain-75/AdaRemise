@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function QuiEsTu() {
+function QuiEsTu({ onIdentification }) {
   const [personnes, setPersonnes] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
@@ -11,17 +11,23 @@ function QuiEsTu() {
   useEffect(() => {
     const recupererPersonnes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/personnes");
+        const response = await fetch("http://localhost:3000/api/benevoles");
 
         if (!response.ok) {
-          throw new Error("Erreur lors du chargement des personnes");
+          throw new Error("Erreur lors du chargement des bénévoles");
         }
 
         const data = await response.json();
+
+        // Vérification utile
+        if (!Array.isArray(data)) {
+          throw new Error("Format de données invalide");
+        }
+
         setPersonnes(data);
       } catch (error) {
         console.error(error);
-        setErreur("Impossible de charger la liste des personnes.");
+        setErreur("Impossible de charger la liste des bénévoles.");
       } finally {
         setChargement(false);
       }
@@ -32,16 +38,11 @@ function QuiEsTu() {
 
   const selectionnerBenevole = (personne) => {
     localStorage.setItem("benevoleId", personne.id);
-    navigate("/");
+    navigate("/liste");
   };
 
-  if (chargement) {
-    return <p>Chargement des personnes...</p>;
-  }
-
-  if (erreur) {
-    return <p>{erreur}</p>;
-  }
+  if (chargement) return <p>Chargement des personnes...</p>;
+  if (erreur) return <p>{erreur}</p>;
 
   return (
     <main>

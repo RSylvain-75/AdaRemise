@@ -139,3 +139,14 @@
   font-weight: 500;
   margin: 8px 0 0;
 }
+.bouton-supprimer {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+}
