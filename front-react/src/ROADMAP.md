@@ -32,3 +32,6 @@
 - Rafraîchir l'indicateur de chargement au changement de filtre, pas seulement au premier affichage.
 - Une commande unique pour lancer back et front ensemble (ex: `concurrently`, avec un `package.json` racine dédié), au lieu de deux terminaux séparés.
 - Généraliser l'affichage en popup à `Fiche_depot.jsx` (domaine B), pour une navigation cohérente partout dans l'application.
+- **Un Popup generaliser** : créer des popups de confirmation de modication de status dans `Ficheobjet` on pourrais aussi le faire pour confirmer une supression.
+- **Créer des alertes automatique** pour nous informer d'un objet ou plusieur `en_rayon`depuis plus de 6 mois.
+- **Créer un catalogue** un fichier `CataloguePublic.jsx` pour la clientele avec un tri et un filtre par categorie pour effectuer des achats.
