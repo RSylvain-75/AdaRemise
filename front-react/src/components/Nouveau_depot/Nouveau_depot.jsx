@@ -3,40 +3,24 @@ import { useNavigate } from "react-router-dom";
 
 export default function NouveauDepot() {
   const navigate = useNavigate();
-  const benevoleId = localStorage.getItem("benevoleId");
 
+  // --- États ---
   const [benevole, setBenevole] = useState(null);
   const [personnes, setPersonnes] = useState([]);
   const [personneId, setPersonneId] = useState("");
   const [dateDepot, setDateDepot] = useState("");
   const [type, setType] = useState("boutique");
   const [notes, setNotes] = useState("");
+
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
   const [succes, setSucces] = useState(false);
 
-  useEffect(() => {
-    if (!benevoleId) return;
+  
 
-    async function chargerBenevole() {
-      try {
-        // corrigé : appelait /api/personnes/:id (table des DONATEURS) au lieu de
-        // /api/benevoles/:id (table des BÉNÉVOLES) — benevoleId ne correspond qu'à
-        // cette deuxième table, d'où l'ancien affichage d'un mauvais nom
-        const res = await fetch(`http://localhost:3000/api/benevoles/${benevoleId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setBenevole(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
 
-    chargerBenevole();
-  }, [benevoleId]);
 
-  // celle-ci est correcte telle quelle : ici on veut bien la liste des DONATEURS
-  // (table "personne"), pour peupler le <select> du formulaire de dépôt
+  // --- Charger la liste des donateurs ---
   useEffect(() => {
     async function chargerPersonnes() {
       try {
@@ -54,11 +38,13 @@ export default function NouveauDepot() {
     chargerPersonnes();
   }, []);
 
+  // --- Déconnexion ---
   const handleLogout = () => {
     localStorage.removeItem("benevoleId");
     navigate("/qui-es-tu");
   };
 
+  // --- Soumission du formulaire ---
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,21 +77,12 @@ export default function NouveauDepot() {
     }
   };
 
+  // --- Affichages ---
   if (chargement) return <p>Chargement...</p>;
   if (erreur) return <p>Erreur: {erreur}</p>;
 
   return (
     <div>
-      <header>
-        <h1>AdaRemise</h1>
-        {benevole && (
-          <p>
-            Connecté : {benevole.prenom} {benevole.nom}
-          </p>
-        )}
-        <button onClick={handleLogout}>Déconnexion</button>
-      </header>
-
       <main>
         <h2>Nouveau dépôt</h2>
 
@@ -114,9 +91,6 @@ export default function NouveauDepot() {
             Donateur *
             <select
               value={personneId}
-              // corrigé : e.target.value est toujours une chaîne, même pour un <select>
-              // dont les options sont des nombres — la route back exige un vrai type
-              // "number" pour personne_id (typeof personne_id !== "number"), d'où le 400
               onChange={(e) => setPersonneId(Number(e.target.value))}
             >
               <option value="">Sélectionner un donateur existant</option>
