@@ -28,6 +28,11 @@
 - Recherche par mot-clé et pagination de la liste des objets (V3, brief)
 - Alerte "objet en rayon depuis plus de 6 mois" (V3, brief)
 - Rafraîchir l'indicateur de chargement au changement de filtre
+- Une commande unique pour lancer back et front ensemble (ex: `concurrently`)
+- Généraliser l'affichage en popup à `Fiche_depot.jsx` (domaine B), pour une navigation cohérente partout
+- Popup de confirmation avant modification du statut ou suppression d'un objet, dans `FicheObjet`
+- Alertes automatiques pour signaler un ou plusieurs objets `en_rayon` depuis plus de 6 mois
+- Un fichier `CataloguePublic.jsx`, avec tri et filtre par catégorie, pour la clientèle
 
 ---
 

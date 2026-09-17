@@ -1,0 +1,344 @@
+.identification-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #101c2c;
+}
+
+/* L'image reste fixe et remplit toujours entièrement l'écran. */
+.identification-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  background-image: url("/images/qui-es-tu-bg.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Panneau d'identification inspiré de la sidebar du dashboard. */
+.identification-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+
+  width: 410px;
+  height: 100vh;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 36px 32px 28px;
+
+  background: rgba(248, 249, 252, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border-radius: 0 42px 42px 0;
+
+  box-shadow:
+    12px 0 40px rgba(15, 28, 44, 0.08),
+    2px 0 10px rgba(15, 28, 44, 0.04);
+}
+
+/* ---------- Logo ---------- */
+
+.identification-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.identification-logo-icon {
+  width: 66px;
+  height: 66px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 18px;
+
+  background: #ffffff;
+  color: #c5221f;
+
+  font-size: 30px;
+  font-weight: 800;
+
+  box-shadow: 0 10px 28px rgba(15, 28, 44, 0.1);
+}
+
+.identification-logo-title {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.identification-logo-subtitle {
+  margin: 8px 0 0;
+
+  color: #7b8089;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+}
+
+/* ---------- Contenu ---------- */
+
+.identification-content {
+  width: 100%;
+  margin-top: 70px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+.identification-label {
+  margin: 0 0 12px;
+
+  color: #c5221f;
+
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.identification-content h1 {
+  margin: 0;
+
+  color: #101c2c;
+
+  font-size: clamp(34px, 3vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+}
+
+.identification-description {
+  max-width: 290px;
+
+  margin: 16px 0 28px;
+
+  color: #707887;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- Liste bénévoles ---------- */
+.identification-personnes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  max-height: 430px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Scroll discret pour ne pas casser le design du panneau. */
+.identification-personnes::-webkit-scrollbar {
+  width: 5px;
+}
+
+.identification-personnes::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.identification-personnes::-webkit-scrollbar-thumb {
+  background: #d7d9de;
+  border-radius: 20px;
+}
+.identification-personne {
+  width: 100%;
+  min-height: 68px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 10px 14px;
+
+  border: 1px solid rgba(16, 28, 44, 0.07);
+  border-radius: 17px;
+
+  background: rgba(255, 255, 255, 0.9);
+  color: #101c2c;
+
+  font-family: inherit;
+  text-align: left;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 18px rgba(15, 28, 44, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.identification-personne:hover {
+  transform: translateY(-2px);
+
+  background: #ffffff;
+  border-color: rgba(197, 34, 31, 0.25);
+
+  box-shadow: 0 10px 24px rgba(15, 28, 44, 0.09);
+}
+
+.identification-avatar {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #c5221f;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow: 0 5px 14px rgba(197, 34, 31, 0.2);
+}
+
+.identification-personne-infos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.identification-personne-infos strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.identification-personne-infos small {
+  color: #8a909b;
+  font-size: 11px;
+}
+
+.identification-arrow {
+  color: #c5221f;
+
+  font-size: 22px;
+
+  transition: transform 0.2s ease;
+}
+
+.identification-personne:hover .identification-arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- Messages ---------- */
+
+.identification-message,
+.identification-erreur {
+  margin: 0;
+  padding: 14px;
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  font-size: 13px;
+}
+
+.identification-erreur {
+  color: #b42318;
+}
+
+/* ---------- Bas du panneau ---------- */
+
+.identification-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: auto;
+  padding-top: 28px;
+
+  color: #101c2c;
+}
+
+.identification-footer-icon {
+  color: #c5221f;
+  font-size: 30px;
+}
+
+.identification-footer div {
+  display: flex;
+  flex-direction: column;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.identification-footer span {
+  color: #727987;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .identification-panel {
+    width: 420px;
+    max-width: 65vw;
+  }
+}
+
+@media (max-width: 650px) {
+  .identification-page {
+    overflow-y: auto;
+  }
+
+  .identification-panel {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+
+    padding: 28px 22px;
+
+    border-radius: 0;
+
+    background: rgba(248, 249, 252, 0.92);
+  }
+
+  .identification-content {
+    margin-top: 55px;
+  }
+
+  .identification-background {
+    background-position: 58% center;
+  }
+}
